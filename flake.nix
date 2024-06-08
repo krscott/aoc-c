@@ -49,7 +49,7 @@
         let
           pkgs = import nixpkgs { inherit system; };
         in {
-          default = pkgs.mkShell {
+          default = pkgs.mkShell.override { stdenv = pkgs.clangStdenv; } {
             packages = with pkgs; [
               clang
               cmake
