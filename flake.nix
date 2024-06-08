@@ -14,18 +14,25 @@
         let
           pkgs = import nixpkgs { inherit system; };
         in {
-          default = pkgs.stdenv.mkDerivation {
+          default = pkgs.clangStdenv.mkDerivation {
             name = "advent-of-code-2023";
-            src = ./src;
+            src = ./.;
+
+            buildInputs = with pkgs; [
+              cmake
+            ];
+
+            configurePhase = ''
+              cmake .
+            '';
 
             buildPhase = ''
-              mkdir -p out
-              $CC -o out/aoc *.c
+              make
             '';
-            
+
             installPhase = ''
               mkdir -p $out/bin
-              cp out/aoc $out/bin
+              cp aoc $out/bin
             '';
           };
         }
@@ -45,6 +52,7 @@
           default = pkgs.mkShell {
             packages = with pkgs; [
               clang
+              cmake
             ];
           };
         });
