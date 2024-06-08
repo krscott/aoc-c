@@ -48,11 +48,32 @@
       devShells = forAllSystems (system:
         let
           pkgs = import nixpkgs { inherit system; };
+          llvm = pkgs.llvmPackages_latest;
         in {
           default = pkgs.mkShell.override { stdenv = pkgs.clangStdenv; } {
             packages = with pkgs; [
-              clang
+              # builder
+              gnumake
               cmake
+              # bear
+
+              # debugger
+              llvm.lldb
+              gdb
+
+              # fix headers not found
+              clang-tools
+
+              # LSP and compiler
+              # llvm.libstdcxxClang
+
+              # other tools
+              # cppcheck
+              llvm.libllvm
+              valgrind
+
+              # stdlib for cpp
+              # llvm.libcxx
             ];
           };
         });
