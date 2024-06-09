@@ -1,6 +1,8 @@
 #include <string.h>
 
-#include "util.h"
+#include "util/common.h"
+#include "util/fileiter.h"
+#include "util/str.h"
 
 static enum err parse_round(i32 *max_r, i32 *max_g, i32 *max_b, struct str round) {
     assert(max_r && max_g && max_b);

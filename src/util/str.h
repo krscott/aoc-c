@@ -1,21 +1,12 @@
-#ifndef UTIL_H
-#define UTIL_H
+#ifndef STR_H
+#define STR_H
 
 #include <assert.h>
 #include <stdint.h>
 #include <stdio.h>
 
-typedef int32_t i32;
-inline i32 max_i32(i32 a, i32 b) { return (a > b) ? a : b; }
-
-enum err {
-    OK = 0,
-    ERR_CLI,
-    ERR_FS,
-    ERR_INPUT,
-    ERR_ERRNO,
-    ERR_MEM,
-};
+#include "common.h"
+#include "error.h"
 
 // Fat pointer string view
 struct str {
@@ -69,33 +60,4 @@ inline struct str cstrbuf_to_str(struct cstrbuf s) {
     };
 }
 
-struct fileiter {
-    FILE *file;
-    size_t size;
-    char *buffer;
-};
-
-enum err cli_file(FILE **file, int argc, char *argv[]);
-enum err fileiter_init_cli(struct fileiter *iter, int argc, char *argv[]);
-enum err fileiter_line(struct str *s, struct fileiter *iter);
-enum err fileiter_delims(struct str *s, struct fileiter *iter, char const *delims);
-void fileiter_deinit(struct fileiter *iter);
-
-char const *err_string(enum err e);
-
-#define countof(a) (sizeof(a) / sizeof(*(a)))
-
-#define log(type, fmt, ...) \
-    fprintf(stderr, __FILE__ ":%d " type " " fmt "\n", __LINE__, ##__VA_ARGS__)
-
-#define log_err(...) log("ERROR", __VA_ARGS__)
-
-#define panic(fmt, ...)            \
-    do {                           \
-        log("PANIC", __VA_ARGS__); \
-        abort();                   \
-    } while (0)
-
-#define panic_on_err(e) panic("%s", error_string(e))
-
-#endif  // UTIL_H
+#endif  // STR_H

@@ -1,7 +1,9 @@
 #include <assert.h>
 #include <string.h>
 
-#include "util.h"
+#include "util/common.h"
+#include "util/fileiter.h"
+#include "util/str.h"
 
 static char const *digits[] = {
     "zero",
