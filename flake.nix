@@ -32,18 +32,18 @@
 
             installPhase = ''
               mkdir -p $out/bin
-              cp aoc $out/bin
+              cp day* $out/bin
             '';
           };
         }
       );
 
-      apps = forAllSystems (system: {
-        default = {
-          type = "app";
-          program = "${self.packages.${system}.default}/bin/aoc";
-        };
-      });
+      # apps = forAllSystems (system: {
+      #   default = {
+      #     type = "app";
+      #     program = "${self.packages.${system}.default}/bin/aoc";
+      #   };
+      # });
 
       devShells = forAllSystems (system:
         let
