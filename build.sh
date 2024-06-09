@@ -4,7 +4,7 @@ set -e
 # Navigate to this script's directory
 cd "$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
 
-BUILD_DIR=build
+BUILD_DIR=out/Debug
 
 usage() {
 	echo "Usage: $0 [COMMAND [INPUT]]"
@@ -21,7 +21,7 @@ cd-build-dir() {
 build() {
 	(
 		cd-build-dir
-		cmake ..
+		cmake ../..
 		cmake --build .
 	)
 }

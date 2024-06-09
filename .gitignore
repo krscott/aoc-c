@@ -1,7 +1,6 @@
 .envrc
 .direnv
 out/
-build/
 .cache/
 compile_commands.json
 result
