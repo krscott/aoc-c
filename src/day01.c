@@ -28,7 +28,7 @@ static i32 get_word_digit(struct str s) {
     return -1;
 }
 
-part2only static enum err add_line_calibration_p2(i32 *cal, struct str line) {
+static enum err add_line_calibration_p2(i32 *cal, struct str line) {
     if (line.len <= 0) return OK;
 
     i32 first = -1;
@@ -58,7 +58,7 @@ part2only static enum err add_line_calibration_p2(i32 *cal, struct str line) {
     return OK;
 }
 
-part1only static enum err add_line_calibration_p1(i32 *cal, struct str line) {
+static enum err add_line_calibration_p1(i32 *cal, struct str line) {
     if (line.len <= 0) return OK;
 
     i32 first = -1;
@@ -96,11 +96,11 @@ int main(int argc, char *argv[]) {
         if (e) goto error;
         if (!line.ptr) break;
 
-#if PART1
-        e = add_line_calibration_p1(&total, line);
-#else
-        e = add_line_calibration_p2(&total, line);
-#endif
+        if (PART1) {
+            e = add_line_calibration_p1(&total, line);
+        } else {
+            e = add_line_calibration_p2(&total, line);
+        }
         if (e) goto error;
     }
 
