@@ -31,6 +31,7 @@
             '';
 
             installPhase = ''
+              ctest
               mkdir -p $out/bin
               cp day* $out/bin
             '';

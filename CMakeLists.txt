@@ -13,3 +13,24 @@ foreach(day ${days})
     add_executable(${name} ${day} src/util.c)
 endforeach()
 
+# Tests
+
+include(CTest)
+
+set(inputs_dir ${PROJECT_SOURCE_DIR}/inputs)
+
+function(do_test target input_file result)
+    set(test_name test_${target}_${input_file})
+    set(test_input_path ${inputs_dir}/${input_file})
+    if (NOT EXISTS ${test_input_path})
+        message(SEND_ERROR "Test input does not exist: ${test_input_path}")
+    endif()
+    add_test(NAME ${test_name} COMMAND ${target} ${test_input_path})
+    set_tests_properties(
+        ${test_name}
+        PROPERTIES PASS_REGULAR_EXPRESSION ${result}
+    )
+endfunction(do_test)
+
+do_test(day01a 01a-example.txt 142)
+do_test(day01a 01.txt 56042)

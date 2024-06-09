@@ -6,9 +6,17 @@ cd "$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
 
 usage() {
     echo "Usage: $0 COMMAND INPUT"
-    echo "  COMMAND  a program name or 'clean'"
+    echo "  COMMAND  clean | test | <program_name>"
     echo "           Example: $0 day01a inputs/01a-example.txt"
     echo "  INPUT    input text file"
+}
+
+build() {
+    mkdir -p $BUILD_DIR
+    cd $BUILD_DIR
+
+    cmake ..
+    cmake --build .
 }
 
 CMD="$1"
@@ -28,15 +36,17 @@ if [[ $CMD == clean ]]; then
     exit
 fi
 
+if [[ $CMD == test ]]; then
+    build
+    ctest
+    exit
+fi
+
 if [[ -z "$INPUT" ]]; then
     usage
     exit 1
 fi
 
-mkdir -p $BUILD_DIR
-cd $BUILD_DIR
-
-cmake ..
-cmake --build .
+build
 "./$CMD" "$INPUT"
 
