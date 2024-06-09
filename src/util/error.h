@@ -3,6 +3,10 @@
 
 #include <stdio.h>
 
+#ifdef __clang__
+#pragma clang diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
+#endif
+
 enum err {
     OK = 0,
     ERR_CLI,

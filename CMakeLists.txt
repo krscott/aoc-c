@@ -7,12 +7,14 @@ set(CMAKE_BUILD_TYPE Debug)
 set(CMAKE_C_STANDARD 17)
 set(CMAKE_C_STANDARD_REQUIRED True)
 
+
 file(GLOB days src/day*a.c src/day*b.c)
 file(GLOB shared src/day*shared.c)
 file(GLOB utils src/util/*.c)
 foreach(day ${days})
     get_filename_component(name ${day} NAME_WE)
     add_executable(${name} ${day} ${shared} ${utils})
+    target_compile_options(${name} PRIVATE -Wall -Wextra -Werror -pedantic)
 endforeach()
 
 # Tests

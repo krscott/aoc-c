@@ -1,5 +1,4 @@
 #include <assert.h>
-#include <string.h>
 
 #include "util/common.h"
 #include "util/fileiter.h"
@@ -20,7 +19,7 @@ static char const *digits[] = {
 
 static i32 get_word_digit(struct str s) {
     assert(s.len > 0);
-    for (ssize_t i = 0; i < countof(digits); ++i) {
+    for (ssize_t i = 0; i < (ssize_t)countof(digits); ++i) {
         for (ssize_t j = 0;; ++j) {
             if (digits[i][j] == 0 || j == s.len) return i;
             if (digits[i][j] != s.ptr[j]) break;
@@ -35,7 +34,7 @@ static enum err add_line_calibration(i32 *cal, struct str line) {
     i32 first = -1;
     i32 last = -1;
 
-    for (size_t i = 0; i < line.len; ++i) {
+    for (ssize_t i = 0; i < line.len; ++i) {
         i32 d = -1;
         char c = line.ptr[i];
         if (c >= '0' && c <= '9') {

@@ -8,7 +8,7 @@ static enum err add_line_calibration(i32 *cal, struct str line) {
     i32 first = -1;
     i32 last = -1;
 
-    for (size_t i = 0; i < line.len; ++i) {
+    for (ssize_t i = 0; i < line.len; ++i) {
         char c = line.ptr[i];
         if (c >= '0' && c <= '9') {
             i32 const x = c - '0';

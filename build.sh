@@ -25,6 +25,9 @@ build() {
 		cmake ../..
 		cmake --build .
 	)
+	if ! [[ -e compile_commands.json ]]; then
+		ln -s "$BUILD_DIR/compile_commands.json" compile_commands.json
+	fi
 }
 
 case "$1" in
