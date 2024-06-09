@@ -6,9 +6,7 @@ static enum err parse_line(i32 *total, struct str line) {
     enum err e = linedata_get(&data, line);
     if (e) goto error;
 
-    if (data.r <= 12 && data.g <= 13 && data.b <= 14) {
-        *total += data.id;
-    }
+    *total += data.r * data.g * data.b;
 
 error:
     return e;
