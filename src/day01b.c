@@ -1,3 +1,4 @@
+#include <assert.h>
 #include <string.h>
 
 #include "util.h"
@@ -16,9 +17,10 @@ char const *digits[] = {
 };
 
 i32 get_word_digit(struct str s) {
+    assert(s.len > 0);
     for (ssize_t i = 0; i < countof(digits); ++i) {
-        for (ssize_t j = 0; j < s.len; ++j) {
-            if (digits[i][j] == 0) return i;
+        for (ssize_t j = 0;; ++j) {
+            if (digits[i][j] == 0 || j == s.len) return i;
             if (digits[i][j] != s.ptr[j]) break;
         }
     }
