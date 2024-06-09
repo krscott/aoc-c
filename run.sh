@@ -4,49 +4,58 @@ set -e
 # Navigate to this script's directory
 cd "$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
 
+BUILD_DIR=build
+
 usage() {
-    echo "Usage: $0 COMMAND INPUT"
-    echo "  COMMAND  clean | test | <program_name>"
-    echo "           Example: $0 day01a inputs/01a-example.txt"
-    echo "  INPUT    input text file"
+	echo "Usage: $0 [COMMAND [INPUT]]"
+	echo "  COMMAND  clean | test | run INPUT"
+	echo "           Example: $0 day01a inputs/01a-example.txt"
+	echo "  INPUT    input text file"
+}
+
+cd-build-dir() {
+	mkdir -p "$BUILD_DIR"
+	cd "$BUILD_DIR"
 }
 
 build() {
-    cmake ..
-    cmake --build .
+	(
+		cd-build-dir
+		cmake ..
+		cmake --build .
+	)
 }
 
-CMD="$1"
-INPUT="$(realpath "$2" || echo "$2")"
-
-if [[ -z "$CMD" ]]; then
-    usage
-    exit 1
-fi
-
-BUILD_DIR=build
-
-if [[ $CMD == clean ]]; then
-    if [[ -d "$BUILD_DIR" ]]; then
-        rm -rf "$BUILD_DIR"
-    fi
-    exit
-fi
-
-mkdir -p $BUILD_DIR
-cd $BUILD_DIR
-
-if [[ $CMD == test ]]; then
-    build
-    ctest -T memcheck
-    exit
-fi
-
-if [[ -z "$INPUT" ]]; then
-    usage
-    exit 1
-fi
-
-build
-"./$CMD" "$INPUT"
-
+case "$1" in
+	"")
+		build
+		;;
+	clean)
+		if [[ -d $BUILD_DIR ]]; then
+			rm -rf "$BUILD_DIR"
+		fi
+		;;
+	test)
+		build
+		(
+			cd-build-dir
+			ctest -T memcheck
+		)
+		;;
+	run)
+		INPUT="$(realpath "$2" || echo "$2")"
+		if [[ -z $INPUT ]]; then
+			usage
+			exit 1
+		fi
+		build
+		(
+			cd-build-dir
+			"./$CMD" "$INPUT"
+		)
+		;;
+	*)
+		usage
+		exit 1
+		;;
+esac
