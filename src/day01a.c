@@ -2,12 +2,12 @@
 
 #include "util.h"
 
-enum err add_line_calibration(i32 *cal, char const *line, ssize_t length) {
+enum err add_line_calibration(i32 *cal, struct str line) {
     i32 first = -1;
     i32 last = -1;
 
-    for (size_t i = 0; i < length; ++i) {
-        char c = line[i];
+    for (size_t i = 0; i < line.len; ++i) {
+        char c = line.ptr[i];
         if (c >= '0' && c <= '9') {
             i32 const x = c - '0';
             if (first == -1) first = x;
@@ -16,7 +16,7 @@ enum err add_line_calibration(i32 *cal, char const *line, ssize_t length) {
     }
 
     if (first == -1) {
-        log_err("Could not find calibration: %.*s", (int)length, line);
+        log_err("Could not find calibration: %.*s", (int)line.len, line.ptr);
         return ERR_INPUT;
     }
 
@@ -26,21 +26,16 @@ enum err add_line_calibration(i32 *cal, char const *line, ssize_t length) {
 }
 
 int main(int argc, char *argv[]) {
-    FILE *file;
-    enum err e = cli(&file, argc, argv);
+    struct file_iter f;
+    enum err e = file_iter_init_cli(&f, argc, argv);
     if (e) return e;
 
     i32 total = 0;
 
-    char *line = NULL;
-    size_t n = 0;
-    ssize_t length = 0;
-
-    while ((length = getline(&line, &n, file)) != -1) {
-        e = add_line_calibration(&total, line, length);
+    for (struct str line; (line = file_iter_line(&f)).len > 0;) {
+        e = add_line_calibration(&total, line);
         if (e) return e;
     }
-    free(line);
 
     printf("%d\n", total);
 }

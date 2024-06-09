@@ -1,6 +1,10 @@
 #include "util.h"
 
-enum err cli(FILE **file, int argc, char *argv[]) {
+#include <assert.h>
+#include <stdio.h>
+#include <stdlib.h>
+
+enum err cli_file(FILE **file, int argc, char *argv[]) {
     if (argc != 2) {
         fprintf(stderr, "Usage: %s INPUT_FILE\n", argv[0]);
         return ERR_CLI;
@@ -13,6 +17,28 @@ enum err cli(FILE **file, int argc, char *argv[]) {
     }
 
     return OK;
+}
+
+enum err file_iter_init_cli(struct file_iter *iter, int argc, char *argv[]) {
+    assert(iter);
+    *iter = (struct file_iter){0};
+    return cli_file(&iter->file, argc, argv);
+}
+
+struct str file_iter_line(struct file_iter *iter) {
+    ssize_t line_length = getline(&iter->line, &iter->size, iter->file);
+    if (line_length < 0) {
+        return (struct str){0};
+    }
+    return (struct str){
+        .ptr = iter->line,
+        .len = line_length,
+    };
+}
+
+void file_iter_deinit(struct file_iter *iter) {
+    if (iter->file) fclose(iter->file);
+    if (iter->line) free(iter->line);
 }
 
 char const *error_string(enum err e) {

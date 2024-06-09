@@ -13,7 +13,22 @@ enum err {
     ERR_INPUT,
 };
 
-enum err cli(FILE **file, int argc, char *argv[]);
+struct file_iter {
+    FILE *file;
+    size_t size;
+    char *line;
+};
+
+struct str {
+    char *ptr;
+    ssize_t len;
+};
+
+enum err cli_file(FILE **file, int argc, char *argv[]);
+enum err file_iter_init_cli(struct file_iter *iter, int argc, char *argv[]);
+struct str file_iter_line(struct file_iter *iter);
+void file_iter_deinit(struct file_iter *iter);
+
 char const *error_string(enum err e);
 
 #define log(type, fmt, ...) \
