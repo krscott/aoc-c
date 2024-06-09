@@ -38,7 +38,7 @@ fi
 
 if [[ $CMD == test ]]; then
     build
-    ctest
+    ctest -T memcheck
     exit
 fi
 

@@ -28,14 +28,18 @@ enum err add_line_calibration(i32 *cal, struct str line) {
 int main(int argc, char *argv[]) {
     struct file_iter f;
     enum err e = file_iter_init_cli(&f, argc, argv);
-    if (e) return e;
+    if (e) goto error;
 
     i32 total = 0;
 
     for (struct str line; (line = file_iter_line(&f)).len > 0;) {
         e = add_line_calibration(&total, line);
-        if (e) return e;
+        if (e) goto error;
     }
 
     printf("%d\n", total);
+
+error:
+    file_iter_deinit(&f);
+    return e;
 }
