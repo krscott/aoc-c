@@ -3,7 +3,7 @@
 #include <errno.h>
 #include <string.h>
 
-char const *err_string(enum err e) {
+char const* err_string(enum err e) {
     switch (e) {
         case OK:
             return "OK";
@@ -18,4 +18,9 @@ char const *err_string(enum err e) {
         case ERR_MEM:
             return "Out of Memory";
     }
+}
+
+enum err err_trace_info(enum err e, char const* filename, int lineno) {
+    if (e) fprintf(stderr, "ERROR %s:%d %s\n", filename, lineno, err_string(e));
+    return e;
 }

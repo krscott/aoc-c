@@ -16,12 +16,15 @@ enum err {
     ERR_MEM,
 };
 
-char const *err_string(enum err e);
+char const* err_string(enum err e);
 
 #define log(type, fmt, ...) \
-    fprintf(stderr, __FILE__ ":%d " type " " fmt "\n", __LINE__, ##__VA_ARGS__)
+    fprintf(stderr, type " " __FILE__ ":%d " fmt "\n", __LINE__, ##__VA_ARGS__)
 
 #define log_err(...) log("ERROR", __VA_ARGS__)
+
+#define err_trace(e) err_trace_info(e, __FILE__, __LINE__)
+enum err err_trace_info(enum err e, char const* filename, int lineno);
 
 #define panic(fmt, ...)            \
     do {                           \
@@ -29,6 +32,6 @@ char const *err_string(enum err e);
         abort();                   \
     } while (0)
 
-#define panic_on_err(e) panic("%s", error_string(e))
+#define panic_on_err(e) panic("%s", err_string(e))
 
 #endif  // ERROR_H

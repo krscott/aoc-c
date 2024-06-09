@@ -6,6 +6,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "error.h"
+
 extern inline void cstrbuf_assert_valid(struct cstrbuf *s);
 
 struct str str_substr(struct str s, ssize_t start, ssize_t end) {
@@ -82,6 +84,44 @@ struct cstrbuf cstrbuf_from_owned_cstr(char *ptr) {
         .len = len,
         .cap = len + 1,
     };
+}
+
+enum err cstrbuf_init_copy_str(struct cstrbuf *s, struct str other) {
+    assert(s);
+
+    *s = (struct cstrbuf){0};
+    if (other.len == 0) return OK;
+
+    ssize_t const cap = other.len + 1;
+
+    s->ptr = malloc(cap * sizeof(char));
+    if (!s->ptr) return err_trace(ERR_MEM);
+
+    strncpy(s->ptr, other.ptr, other.len);
+    s->ptr[other.len] = '\0';
+    s->len = other.len;
+    s->cap = cap;
+
+    return OK;
+}
+
+enum err cstrbuf_init_copy_cstr(struct cstrbuf *s, char const *ptr) {
+    *s = (struct cstrbuf){0};
+    if (!ptr) return OK;
+
+    ssize_t const len = strlen(ptr);
+    if (len == 0) return OK;
+
+    ssize_t const cap = len + 1;
+
+    s->ptr = malloc(cap * sizeof(char));
+    if (!s->ptr) return err_trace(ERR_MEM);
+
+    strcpy(s->ptr, ptr);
+    s->len = len;
+    s->cap = cap;
+
+    return OK;
 }
 
 enum err cstrbuf_reserve(struct cstrbuf *s, ssize_t additional) {

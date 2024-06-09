@@ -52,7 +52,11 @@ do_test(day01a 01a-example.txt 142)
 do_test(day01a 01.txt 56042)
 do_test(day01b 01b-example.txt 281)
 do_test(day01b 01.txt 55358)
+
 do_test(day02a 02-example.txt 8)
 do_test(day02a 02.txt 3059)
 do_test(day02b 02-example.txt 2286)
 do_test(day02b 02.txt 65371)
+
+do_test(day03a 03-example.txt 4361)
+do_test(day03a 03.txt 556367)

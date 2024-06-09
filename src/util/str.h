@@ -2,7 +2,6 @@
 #define STR_H
 
 #include <assert.h>
-#include <stdint.h>
 #include <stdio.h>
 
 #include "common.h"
@@ -48,6 +47,10 @@ inline void cstrbuf_assert_valid(struct cstrbuf *s) {
 void cstrbuf_deinit(struct cstrbuf *s);
 /// Move an owned null-terminated string into cstrbuf
 struct cstrbuf cstrbuf_from_owned_cstr(char *ptr);
+/// Create a cstrbuf by copying a cstr
+enum err cstrbuf_init_copy_cstr(struct cstrbuf *s, char const *ptr);
+/// Create a cstrbuf by copying a str
+enum err cstrbuf_init_copy_str(struct cstrbuf *s, struct str other);
 /// Reserve additional bytes beyond length
 enum err cstrbuf_reserve(struct cstrbuf *s, ssize_t additional);
 /// Append a character to the end of the buffer and move the null terminator
