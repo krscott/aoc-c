@@ -1,4 +1,4 @@
-#include "util.h"
+#include "util/fileiter.h"
 
 int main(int argc, char *argv[]) {
     struct fileiter f;

@@ -5,6 +5,7 @@ set -e
 cd "$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
 
 BUILD_DIR=out/Debug
+COMP_CMDS_FILENAME=compile_commands.json
 
 usage() {
 	echo "Usage: $0 [COMMAND [...]]"
@@ -25,8 +26,8 @@ build() {
 		cmake ../..
 		cmake --build .
 	)
-	if ! [[ -e compile_commands.json ]]; then
-		ln -s "$BUILD_DIR/compile_commands.json" compile_commands.json
+	if ! [[ -L $COMP_CMDS_FILENAME ]] && ! [[ -e $COMP_CMDS_FILENAME ]]; then
+		ln -s "$BUILD_DIR/$COMP_CMDS_FILENAME" "$COMP_CMDS_FILENAME"
 	fi
 }
 
@@ -37,6 +38,9 @@ case "$1" in
 	clean)
 		if [[ -d $BUILD_DIR ]]; then
 			rm -rf "$BUILD_DIR"
+		fi
+		if [[ -L $COMP_CMDS_FILENAME ]]; then
+			rm $COMP_CMDS_FILENAME
 		fi
 		;;
 	test)

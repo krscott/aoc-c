@@ -28,7 +28,7 @@ static i32 get_word_digit(struct str s) {
     return -1;
 }
 
-static enum err add_line_calibration(i32 *cal, struct str line) {
+part2only static enum err add_line_calibration_p2(i32 *cal, struct str line) {
     if (line.len <= 0) return OK;
 
     i32 first = -1;
@@ -58,6 +58,31 @@ static enum err add_line_calibration(i32 *cal, struct str line) {
     return OK;
 }
 
+part1only static enum err add_line_calibration_p1(i32 *cal, struct str line) {
+    if (line.len <= 0) return OK;
+
+    i32 first = -1;
+    i32 last = -1;
+
+    for (ssize_t i = 0; i < line.len; ++i) {
+        char c = line.ptr[i];
+        if (c >= '0' && c <= '9') {
+            i32 const x = c - '0';
+            if (first == -1) first = x;
+            last = x;
+        }
+    }
+
+    if (first == -1) {
+        log_err("Could not find calibration: %.*s", (int)line.len, line.ptr);
+        return ERR_INPUT;
+    }
+
+    *cal += first * 10 + last;
+
+    return OK;
+}
+
 int main(int argc, char *argv[]) {
     struct fileiter f;
     enum err e = fileiter_init_cli(&f, argc, argv);
@@ -71,7 +96,11 @@ int main(int argc, char *argv[]) {
         if (e) goto error;
         if (!line.ptr) break;
 
-        e = add_line_calibration(&total, line);
+#if PART1
+        e = add_line_calibration_p1(&total, line);
+#else
+        e = add_line_calibration_p2(&total, line);
+#endif
         if (e) goto error;
     }
 
