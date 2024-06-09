@@ -1,4 +1,29 @@
+#include <string.h>
+
 #include "util.h"
+
+char const *digits[] = {
+    "zero",
+    "one",
+    "two",
+    "three",
+    "four",
+    "five",
+    "six",
+    "seven",
+    "eight",
+    "nine",
+};
+
+i32 get_word_digit(struct str s) {
+    for (ssize_t i = 0; i < countof(digits); ++i) {
+        for (ssize_t j = 0; j < s.len; ++j) {
+            if (digits[i][j] == 0) return i;
+            if (digits[i][j] != s.ptr[j]) break;
+        }
+    }
+    return -1;
+}
 
 enum err add_line_calibration(i32 *cal, struct str line) {
     if (line.len <= 0) return OK;
@@ -7,11 +32,16 @@ enum err add_line_calibration(i32 *cal, struct str line) {
     i32 last = -1;
 
     for (size_t i = 0; i < line.len; ++i) {
+        i32 d = -1;
         char c = line.ptr[i];
         if (c >= '0' && c <= '9') {
-            i32 const x = c - '0';
-            if (first == -1) first = x;
-            last = x;
+            d = c - '0';
+        } else {
+            d = get_word_digit(str_substr(line, i, line.len));
+        }
+        if (d != -1) {
+            if (first == -1) first = d;
+            last = d;
         }
     }
 

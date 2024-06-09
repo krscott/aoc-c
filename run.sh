@@ -12,15 +12,12 @@ usage() {
 }
 
 build() {
-    mkdir -p $BUILD_DIR
-    cd $BUILD_DIR
-
     cmake ..
     cmake --build .
 }
 
 CMD="$1"
-INPUT="$2"
+INPUT="$(realpath "$2" || echo "$2")"
 
 if [[ -z "$CMD" ]]; then
     usage
@@ -35,6 +32,9 @@ if [[ $CMD == clean ]]; then
     fi
     exit
 fi
+
+mkdir -p $BUILD_DIR
+cd $BUILD_DIR
 
 if [[ $CMD == test ]]; then
     build

@@ -53,3 +53,14 @@ char const *error_string(enum err e) {
             return "Invalid Input";
     }
 }
+
+/// Get substring from start to end (exclusive)
+struct str str_substr(struct str s, ssize_t start, ssize_t end) {
+    assert(end > start);
+    assert(start >= 0 && start < s.len);
+    assert(end > 0 && end <= s.len);
+    return (struct str){
+        .ptr = s.ptr + start,
+        .len = end - start,
+    };
+}

@@ -31,6 +31,10 @@ void file_iter_deinit(struct file_iter *iter);
 
 char const *error_string(enum err e);
 
+struct str str_substr(struct str s, ssize_t start, ssize_t end);
+
+#define countof(a) (sizeof(a) / sizeof(*(a)))
+
 #define log(type, fmt, ...) \
     fprintf(stderr, __FILE__ ":%d " type " " fmt "\n", __LINE__, ##__VA_ARGS__)
 

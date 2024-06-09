@@ -34,3 +34,5 @@ endfunction(do_test)
 
 do_test(day01a 01a-example.txt 142)
 do_test(day01a 01.txt 56042)
+do_test(day01b 01b-example.txt 281)
+do_test(day01b 01.txt 55358)
