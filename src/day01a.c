@@ -26,13 +26,18 @@ enum err add_line_calibration(i32 *cal, struct str line) {
 }
 
 int main(int argc, char *argv[]) {
-    struct file_iter f;
-    enum err e = file_iter_init_cli(&f, argc, argv);
+    struct fileiter f;
+    enum err e = fileiter_init_cli(&f, argc, argv);
     if (e) goto error;
 
     i32 total = 0;
 
-    for (struct str line; (line = file_iter_line(&f)).ptr;) {
+    for (;;) {
+        struct str line;
+        e = fileiter_line(&line, &f);
+        if (e) goto error;
+        if (!line.ptr) break;
+
         e = add_line_calibration(&total, line);
         if (e) goto error;
     }
@@ -40,6 +45,6 @@ int main(int argc, char *argv[]) {
     printf("%d\n", total);
 
 error:
-    file_iter_deinit(&f);
+    fileiter_deinit(&f);
     return e;
 }

@@ -11,9 +11,10 @@ enum err {
     ERR_CLI,
     ERR_FS,
     ERR_INPUT,
+    ERR_ERRNO,
 };
 
-struct file_iter {
+struct fileiter {
     FILE *file;
     size_t size;
     char *line;
@@ -25,11 +26,11 @@ struct str {
 };
 
 enum err cli_file(FILE **file, int argc, char *argv[]);
-enum err file_iter_init_cli(struct file_iter *iter, int argc, char *argv[]);
-struct str file_iter_line(struct file_iter *iter);
-void file_iter_deinit(struct file_iter *iter);
+enum err fileiter_init_cli(struct fileiter *iter, int argc, char *argv[]);
+enum err fileiter_line(struct str *s, struct fileiter *iter);
+void fileiter_deinit(struct fileiter *iter);
 
-char const *error_string(enum err e);
+char const *err_string(enum err e);
 
 struct str str_substr(struct str s, ssize_t start, ssize_t end);
 
