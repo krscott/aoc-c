@@ -3,7 +3,7 @@
 
 #include "util.h"
 
-char const *digits[] = {
+static char const *digits[] = {
     "zero",
     "one",
     "two",
@@ -16,7 +16,7 @@ char const *digits[] = {
     "nine",
 };
 
-i32 get_word_digit(struct str s) {
+static i32 get_word_digit(struct str s) {
     assert(s.len > 0);
     for (ssize_t i = 0; i < countof(digits); ++i) {
         for (ssize_t j = 0;; ++j) {
@@ -27,7 +27,7 @@ i32 get_word_digit(struct str s) {
     return -1;
 }
 
-enum err add_line_calibration(i32 *cal, struct str line) {
+static enum err add_line_calibration(i32 *cal, struct str line) {
     if (line.len <= 0) return OK;
 
     i32 first = -1;

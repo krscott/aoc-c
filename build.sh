@@ -7,9 +7,10 @@ cd "$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
 BUILD_DIR=out/Debug
 
 usage() {
-	echo "Usage: $0 [COMMAND [INPUT]]"
-	echo "  COMMAND  clean | test | run INPUT"
+	echo "Usage: $0 [COMMAND [...]]"
+	echo "  COMMAND  clean | test | run PROG INPUT"
 	echo "           Example: $0 day01a inputs/01a-example.txt"
+	echo "  PROG     program binary name"
 	echo "  INPUT    input text file"
 }
 
@@ -43,16 +44,15 @@ case "$1" in
 		)
 		;;
 	run)
-		INPUT="$(realpath "$2" || echo "$2")"
-		if [[ -z $INPUT ]]; then
+		shift
+		CMD="$1"
+		shift
+		if [[ -z $CMD ]]; then
 			usage
 			exit 1
 		fi
 		build
-		(
-			cd-build-dir
-			"./$CMD" "$INPUT"
-		)
+		"$BUILD_DIR/$CMD" "$@"
 		;;
 	*)
 		usage

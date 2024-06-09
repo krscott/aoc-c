@@ -1,6 +1,6 @@
 #include "util.h"
 
-enum err add_line_calibration(i32 *cal, struct str line) {
+static enum err add_line_calibration(i32 *cal, struct str line) {
     if (line.len <= 0) return OK;
 
     i32 first = -1;
