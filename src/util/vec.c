@@ -7,11 +7,6 @@
 
 vec_define_struct(vec, void);
 
-void vec_init_(struct vec *vec, size_t elem_size) {
-    (void)elem_size;
-    *vec = (struct vec){0};
-}
-
 void vec_deinit_(struct vec *vec, size_t elem_size) {
     (void)elem_size;
     if (vec->buf) free(vec->buf);

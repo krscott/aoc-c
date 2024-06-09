@@ -100,18 +100,20 @@ enum err get_adjacent_numbers(
 }
 
 int main(int argc, char *argv[]) {
-    struct linevec lines;
+    struct linevec lines = {0};
+    struct i32vec nums = {0};
+
     enum err e = cli_file_lines(&lines, argc, argv);
     if (e) goto error;
 
     i32 total = 0;
 
     for (ssize_t row = 0; row < lines.len; ++row) {
-        struct cstrbuf const line = lines.buf[row];
+        struct cstrbuf line = lines.buf[row];
         for (ssize_t col = 0; col < line.len; ++col) {
             char const value = line.ptr[col];
             if (is_symbol(value)) {
-                struct i32vec nums = {0};
+                vec_clear(&nums);
                 e = get_adjacent_numbers(&nums, &lines, row, col);
                 if (e) goto error;
                 if (PART1) {
@@ -133,6 +135,7 @@ int main(int argc, char *argv[]) {
     printf("%d\n", total);
 
 error:
+    vec_deinit(&nums);
     linevec_deinit(&lines);
     return e;
 }

@@ -18,9 +18,6 @@ struct vec;
 
 #define vec_detype_(v) (struct vec *)(v), sizeof(*(v)->buf)
 
-#define vec_init(v) vec_init_(vec_detype_(v))
-void vec_init_(struct vec *vec, size_t elem_size);
-
 #define vec_deinit(v) vec_deinit_(vec_detype_(v))
 void vec_deinit_(struct vec *vec, size_t elem_size);
 
@@ -28,5 +25,7 @@ void vec_deinit_(struct vec *vec, size_t elem_size);
 enum err vec_reserve_(struct vec *vec, size_t elem_size, ssize_t additional);
 
 #define vec_push(v, elem) (vec_reserve(v, 1) || ((v)->buf[(v)->len++] = elem, OK))
+
+#define vec_clear(v) ((v)->len = 0)
 
 #endif  // VEC_H
