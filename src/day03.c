@@ -2,8 +2,33 @@
 #include <stdbool.h>
 
 #include "util/fileiter.h"
+#include "util/vec.h"
 
-bool is_symbol(char const c) { return c != '.' && !isdigit(c); }
+vec_define_struct(i32vec, i32);
+
+i32 sum(struct i32vec nums) {
+    i32 total = 0;
+    for (ssize_t i = 0; i < nums.len; ++i) {
+        total += nums.buf[i];
+    }
+    return total;
+}
+
+i32 product(struct i32vec nums) {
+    i32 total = 1;
+    for (ssize_t i = 0; i < nums.len; ++i) {
+        total *= nums.buf[i];
+    }
+    return total;
+}
+
+bool is_symbol(char const c) {
+    if (PART1) {
+        return c != '.' && !isdigit(c);
+    } else {
+        return c == '*';
+    }
+}
 
 i32 get_number(struct cstrbuf *line, ssize_t const col) {
     if (col < 0 || col >= line->len || !isdigit(line->ptr[col])) return 0;
@@ -15,39 +40,63 @@ i32 get_number(struct cstrbuf *line, ssize_t const col) {
     char *end;
     i32 n = strtol(start, &end, 10);
     /* printf("get_number: %zd %d\n", col, n); */
-    // Blank out number to prevent double-counting
-    /* printf("%s -> ", line->ptr); */
-    for (; start < end; ++start) {
-        *start = 'x';
+    if (PART1) {
+        // Blank out number to prevent double-counting
+        /* printf("%s -> ", line->ptr); */
+        for (; start < end; ++start) {
+            *start = 'x';
+        }
     }
     /* printf("%s\n", line->ptr); */
     return n;
 }
 
-i32 get_row_adjacent_numbers(struct cstrbuf *line, ssize_t col) {
-    // If a number exists in the center, then there can be only one number
+enum err push_number(struct i32vec *nums, struct cstrbuf *line, ssize_t col) {
     i32 n = get_number(line, col);
-    if (!n) {
-        n = get_number(line, col - 1) + get_number(line, col + 1);
-    }
-    return n;
+    if (n) return vec_push(nums, n);
+    return OK;
 }
 
-i32 get_adjacent_numbers(struct linevec *lines, ssize_t const row, ssize_t const col) {
-    i32 total = 0;
+enum err push_row_adjacent_numbers(struct i32vec *nums, struct cstrbuf *line, ssize_t col) {
+    enum err e = OK;
+    // If a number exists in the center, then there can be only one number
+    i32 n = get_number(line, col);
+    if (n) return vec_push(nums, n);
+
+    n = get_number(line, col - 1);
+    if (n) e = vec_push(nums, n);
+    if (e) return e;
+
+    n = get_number(line, col + 1);
+    if (n) e = vec_push(nums, n);
+    return e;
+}
+
+enum err get_adjacent_numbers(
+    struct i32vec *nums,
+    struct linevec *lines,
+    ssize_t const row,
+    ssize_t const col
+) {
+    enum err e = OK;
     // Top
     if (row > 0) {
-        total += get_row_adjacent_numbers(&lines->buf[row - 1], col);
+        e = push_row_adjacent_numbers(nums, &lines->buf[row - 1], col);
+        if (e) return e;
     }
     // Left
-    total += get_number(&lines->buf[row], col - 1);
+    e = push_number(nums, &lines->buf[row], col - 1);
+    if (e) return e;
     // Right
-    total += get_number(&lines->buf[row], col + 1);
+    e = push_number(nums, &lines->buf[row], col + 1);
+    if (e) return e;
     // Bottom
     if (row < lines->len - 1) {
-        total += get_row_adjacent_numbers(&lines->buf[row + 1], col);
+        e = push_row_adjacent_numbers(nums, &lines->buf[row + 1], col);
+        if (e) return e;
     }
-    return total;
+
+    return OK;
 }
 
 int main(int argc, char *argv[]) {
@@ -62,7 +111,16 @@ int main(int argc, char *argv[]) {
         for (ssize_t col = 0; col < line.len; ++col) {
             char const value = line.ptr[col];
             if (is_symbol(value)) {
-                total += get_adjacent_numbers(&lines, row, col);
+                struct i32vec nums = {0};
+                e = get_adjacent_numbers(&nums, &lines, row, col);
+                if (e) goto error;
+                if (PART1) {
+                    total += sum(nums);
+                } else {
+                    if (nums.len == 2) {
+                        total += product(nums);
+                    }
+                }
             }
         }
     }
