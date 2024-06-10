@@ -55,7 +55,8 @@ int main(int argc, char *argv[]) {
     enum err e = fileiter_init_cli(&f, argc, argv);
     if (e) goto error;
 
-    i32 total = 0;
+    struct intvec card_wins = {0};
+    struct intvec card_count = {0};
 
     for (;;) {
         struct str line;
@@ -66,12 +67,34 @@ int main(int argc, char *argv[]) {
         i32 wins;
         e = get_card_wins(&wins, line);
         if (e) goto error;
-        if (wins > 0) total += 1 << (wins - 1);
+        vec_push(&card_wins, wins);
+        if (!PART1) vec_push(&card_count, 1);
+    }
+
+    i32 total = 0;
+    for (ssize_t i = 0; i < card_wins.len; ++i) {
+        i32 wins = card_wins.buf[i];
+        if (PART1) {
+            if (wins > 0) total += 1 << (wins - 1);
+        } else {
+            i32 count = card_count.buf[i];
+            for (ssize_t j = 1; j <= wins; ++j) {
+                if (i + j >= card_count.len) {
+                    log_err("Card %zd counted past last card", i);
+                    e = ERR_INPUT;
+                    goto error;
+                }
+                card_count.buf[i + j] += count;
+            }
+            total += count;
+        }
     }
 
     printf("%d\n", total);
 
 error:
+    vec_deinit(&card_wins);
+    vec_deinit(&card_count);
     fileiter_deinit(&f);
     return e;
 }
