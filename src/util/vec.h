@@ -16,13 +16,13 @@ struct vec;
         ssize_t cap;               \
     }
 
-#define vec_detype_(v) (struct vec *)(v), sizeof(*(v)->buf)
+#define vec__detype(v) (struct vec *)(v), sizeof(*(v)->buf)
 
-#define vec_deinit(v) vec_deinit_(vec_detype_(v))
-void vec_deinit_(struct vec *vec, size_t elem_size);
+#define vec_deinit(v) vec__deinit(vec__detype(v))
+void vec__deinit(struct vec *vec, size_t elem_size);
 
-#define vec_reserve(v, additional) vec_reserve_(vec_detype_(v), additional)
-enum err vec_reserve_(struct vec *vec, size_t elem_size, ssize_t additional);
+#define vec_reserve(v, additional) vec__reserve(vec__detype(v), additional)
+enum err vec__reserve(struct vec *vec, size_t elem_size, ssize_t additional);
 
 #define vec_push(v, elem) (vec_reserve(v, 1) || ((v)->buf[(v)->len++] = elem, OK))
 

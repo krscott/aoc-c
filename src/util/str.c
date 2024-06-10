@@ -48,14 +48,35 @@ char str_split(struct str *left, struct str *right, struct str input, char const
     return '\0';
 }
 
+char str_shift(struct str *tail, struct str input) {
+    assert(input.len >= 0);
+
+    if (input.len <= 0) {
+        if (tail) {
+            tail->ptr = NULL;
+            tail->len = 0;
+        }
+        return '\0';
+    }
+
+    if (tail) {
+        tail->ptr = input.ptr + 1;
+        tail->len = input.len - 1;
+    }
+    return input.ptr[0];
+}
+
 enum err str_take_int(i32 *n, struct str *tail, struct str input) {
     assert(n);
     char *end;
+    errno = 0;
     *n = strtol(input.ptr, &end, 10);
-    if (errno) {
-        log_err("strol failed: %s", strerror(errno));
-        return ERR_ERRNO;
+    if (*n == 0 && end == input.ptr) {
+        if (tail) *tail = input;
+        return ERR_NONE;
     }
+    if (errno) return err_trace(ERR_ERRNO);
+
     if (tail) {
         tail->ptr = end;
         tail->len = input.len - (end - input.ptr);

@@ -9,6 +9,7 @@
 
 enum err {
     OK = 0,
+    ERR_NONE,
     ERR_CLI,
     ERR_FS,
     ERR_INPUT,

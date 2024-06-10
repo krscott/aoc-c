@@ -17,7 +17,9 @@ struct str {
 struct str str_substr(struct str s, ssize_t start, ssize_t end);
 /// Split a str by delim. Returns matched delim, or '\0' if end of string
 char str_split(struct str *left, struct str *right, struct str input, char const *delims);
-/// Parse an integer, put remaining string in tail
+/// Remove first char from intput, put result in tail
+char str_shift(struct str *tail, struct str input);
+/// Parse an integer, put remaining string in tail. If no number, returns ERR_NONE.
 enum err str_take_int(i32 *n, struct str *tail, struct str input);
 /// Trim whitespace
 struct str str_trim_whitespace(struct str s);

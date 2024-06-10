@@ -7,6 +7,8 @@ char const* err_string(enum err e) {
     switch (e) {
         case OK:
             return "OK";
+        case ERR_NONE:
+            return "None";
         case ERR_CLI:
             return "Command Line Argument Error";
         case ERR_FS:

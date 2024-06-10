@@ -2,25 +2,8 @@
 #include <stdbool.h>
 
 #include "util/fileiter.h"
+#include "util/intvec.h"
 #include "util/vec.h"
-
-vec_define_struct(i32vec, i32);
-
-i32 sum(struct i32vec nums) {
-    i32 total = 0;
-    for (ssize_t i = 0; i < nums.len; ++i) {
-        total += nums.buf[i];
-    }
-    return total;
-}
-
-i32 product(struct i32vec nums) {
-    i32 total = 1;
-    for (ssize_t i = 0; i < nums.len; ++i) {
-        total *= nums.buf[i];
-    }
-    return total;
-}
 
 bool is_symbol(char const c) {
     if (PART1) {
@@ -51,13 +34,13 @@ i32 get_number(struct cstrbuf *line, ssize_t const col) {
     return n;
 }
 
-enum err push_number(struct i32vec *nums, struct cstrbuf *line, ssize_t col) {
+enum err push_number(struct intvec *nums, struct cstrbuf *line, ssize_t col) {
     i32 n = get_number(line, col);
     if (n) return vec_push(nums, n);
     return OK;
 }
 
-enum err push_row_adjacent_numbers(struct i32vec *nums, struct cstrbuf *line, ssize_t col) {
+enum err push_row_adjacent_numbers(struct intvec *nums, struct cstrbuf *line, ssize_t col) {
     enum err e = OK;
     // If a number exists in the center, then there can be only one number
     i32 n = get_number(line, col);
@@ -73,7 +56,7 @@ enum err push_row_adjacent_numbers(struct i32vec *nums, struct cstrbuf *line, ss
 }
 
 enum err get_adjacent_numbers(
-    struct i32vec *nums,
+    struct intvec *nums,
     struct linevec *lines,
     ssize_t const row,
     ssize_t const col
@@ -101,7 +84,7 @@ enum err get_adjacent_numbers(
 
 int main(int argc, char *argv[]) {
     struct linevec lines = {0};
-    struct i32vec nums = {0};
+    struct intvec nums = {0};
 
     enum err e = cli_file_lines(&lines, argc, argv);
     if (e) goto error;
@@ -117,10 +100,10 @@ int main(int argc, char *argv[]) {
                 e = get_adjacent_numbers(&nums, &lines, row, col);
                 if (e) goto error;
                 if (PART1) {
-                    total += sum(nums);
+                    total += intvec_sum(nums);
                 } else {
                     if (nums.len == 2) {
-                        total += product(nums);
+                        total += intvec_product(nums);
                     }
                 }
             }

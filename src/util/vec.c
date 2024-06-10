@@ -7,12 +7,12 @@
 
 vec_define_struct(vec, void);
 
-void vec_deinit_(struct vec *vec, size_t elem_size) {
+void vec__deinit(struct vec *vec, size_t elem_size) {
     (void)elem_size;
     if (vec->buf) free(vec->buf);
 }
 
-enum err vec_reserve_(struct vec *vec, size_t elem_size, ssize_t additional) {
+enum err vec__reserve(struct vec *vec, size_t elem_size, ssize_t additional) {
     ssize_t const min_cap = 8;
 
     assert(additional > 0);
