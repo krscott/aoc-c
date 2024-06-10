@@ -1,5 +1,6 @@
 #include "error.h"
 
+#include <assert.h>
 #include <errno.h>
 #include <string.h>
 
@@ -20,6 +21,8 @@ char const* err_string(enum err e) {
         case ERR_MEM:
             return "Out of Memory";
     }
+    assert(0);
+    return "Unknown Error";
 }
 
 enum err err_trace_info(enum err e, char const* filename, int lineno) {
