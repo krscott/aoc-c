@@ -1,5 +1,7 @@
 # aoc-c
 
+[![build status](https://github.com/krscott/aoc-c/actions/workflows/cmake-single-platform.yml/badge.svg)](https://github.com/krscott/aoc-c/actions)
+
 Advent of Code 2023 in C.
 
 Rules
