@@ -15,7 +15,7 @@ enum err intvec_min(i64 *out, struct intvec nums);
 void intvec_print(struct intvec nums);
 
 #if LOG_DBG
-#define intvec_log_dbg(nums) intvec__log_dbg(nums, __FILE__, __LINE__)
+#define intvec_log_dbg(nums) intvec__log_dbg(nums, my_basename(__FILE__), __LINE__)
 void intvec__log_dbg(struct intvec nums, char const *filename, size_t lineno);
 #else
 #define intvec_log_dbg(nums)

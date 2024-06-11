@@ -4,6 +4,10 @@
 #include "util/str.h"
 #include "util/vec.h"
 
+#if LOG_DBG
+#include "util/intvec.h"
+#endif
+
 static ssize_t const expected_maps = 7;
 
 struct seed {

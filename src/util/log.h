@@ -3,12 +3,14 @@
 
 #include <stdio.h>
 
+#include "common.h"  // IWYU pragma: export
+
 #ifdef __clang__
 #pragma clang diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
 #endif
 
 #define log(type, fmt, ...) \
-    fprintf(stderr, type " " __FILE__ ":%d " fmt "\n", __LINE__, ##__VA_ARGS__)
+    fprintf(stderr, type " %s:%d " fmt "\n", my_basename(__FILE__), __LINE__, ##__VA_ARGS__)
 
 #define log_err(...) log("ERROR", __VA_ARGS__)
 
