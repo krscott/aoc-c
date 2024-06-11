@@ -2,6 +2,7 @@
 
 #include <assert.h>
 #include <errno.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -49,7 +50,10 @@ enum err cli_file_lines(struct linevec *lines, int argc, char *argv[]) {
     for (;;) {
         struct str line;
         e = fileiter_line(&line, &iter);
-        if (e == ERR_NONE) break;
+        if (e == ERR_NONE) {
+            e = OK;
+            break;
+        }
         if (e) goto error;
 
         struct cstrbuf linebuf;

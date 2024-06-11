@@ -2,6 +2,7 @@
 
 #include "util/common.h"
 #include "util/fileiter.h"
+#include "util/log.h"
 #include "util/str.h"
 
 static char const *digits[] = {
@@ -21,14 +22,14 @@ static i64 get_word_digit(struct str s) {
     assert(s.len > 0);
     for (ssize_t i = 0; i < (ssize_t)countof(digits); ++i) {
         for (ssize_t j = 0;; ++j) {
-            if (digits[i][j] == 0 || j == s.len) return i;
-            if (digits[i][j] != s.ptr[j]) break;
+            if (digits[i][j] == 0) return i;
+            if (j == s.len || digits[i][j] != s.ptr[j]) break;
         }
     }
     return -1;
 }
 
-static enum err add_line_calibration_p2(i64 *cal, struct str line) {
+static enum err add_line_calibration_p2(i64 *cal_total, struct str line) {
     if (line.len <= 0) return OK;
 
     i64 first = -1;
@@ -53,7 +54,10 @@ static enum err add_line_calibration_p2(i64 *cal, struct str line) {
         return ERR_INPUT;
     }
 
-    *cal += first * 10 + last;
+    i64 line_cal = first * 10 + last;
+    log_dbg("%ld", line_cal);
+
+    *cal_total += line_cal;
 
     return OK;
 }
