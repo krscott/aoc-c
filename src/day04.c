@@ -1,6 +1,7 @@
 #include "util/error.h"
 #include "util/fileiter.h"
 #include "util/intvec.h"
+#include "util/log.h"
 #include "util/str.h"
 #include "util/vec.h"
 

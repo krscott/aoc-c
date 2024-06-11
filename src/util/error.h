@@ -1,8 +1,6 @@
 #ifndef ERROR_H
 #define ERROR_H
 
-#include "log.h"
-
 enum err {
     OK = 0,
     ERR_NONE,

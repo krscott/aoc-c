@@ -3,6 +3,7 @@
 #include "util/common.h"
 #include "util/error.h"
 #include "util/fileiter.h"
+#include "util/log.h"
 #include "util/str.h"
 
 struct linedata {
