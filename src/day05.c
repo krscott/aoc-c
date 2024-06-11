@@ -179,6 +179,21 @@ static inline void seedvec_log_debug(struct seedvec seeds) {
 #endif
 }
 
+enum err get_min_seed(i64 *min, struct seedvec *seeds) {
+    ssize_t len = seeds->len;
+    struct seed *buf = seeds->buf;
+    if (len == 0) return err_trace(ERR_INPUT);
+    i64 x = buf[0].start;
+    for (ssize_t i = 1; i < len; ++i) {
+        i64 val = buf[i].start;
+        if (x > val) {
+            x = val;
+        }
+    }
+    *min = x;
+    return OK;
+}
+
 int main(int argc, char *argv[]) {
     struct fileiter f;
     struct seedvec seeds = {0};
@@ -208,14 +223,10 @@ int main(int argc, char *argv[]) {
         return ERR_INPUT;
     }
 
-    if (seeds.len == 0) return err_trace(ERR_INPUT);
-    i64 min = seeds.buf[0].start;
-    for (ssize_t i = 1; i < seeds.len; ++i) {
-        i64 val = seeds.buf[i].start;
-        if (min > val) {
-            min = val;
-        }
-    }
+    i64 min;
+    e = get_min_seed(&min, &seeds);
+    if (e) goto error;
+
     printf("%ld\n", min);
 
 error:
