@@ -13,7 +13,7 @@ enum err {
 
 char const* err_string(enum err e);
 
-#define err_trace(e) err_trace_info(e, __FILE_NAME__, __LINE__)
+#define err_trace(e) err_trace_info(e, __FILE__, __LINE__)
 enum err err_trace_info(enum err e, char const* filename, int lineno);
 
 #endif  // ERROR_H
