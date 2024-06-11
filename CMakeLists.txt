@@ -74,3 +74,5 @@ do_test(day04b 04.txt 11827296)
 
 do_test(day05a 05-example.txt 35)
 do_test(day05a 05.txt 525792406)
+do_test(day05b 05-example.txt 46)
+do_test(day05b 05.txt 79004094)
