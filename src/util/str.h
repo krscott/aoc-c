@@ -15,14 +15,20 @@ struct str {
 
 /// Get substring from start to end (exclusive)
 struct str str_substr(struct str s, ssize_t start, ssize_t end);
-/// Split a str by delim. Returns matched delim, or '\0' if end of string
-char str_split(struct str *left, struct str *right, struct str input, char const *delims);
+/// Split a str by delim. Return next split section.
+struct str str_split(struct str *tail, struct str input, char const *delim);
+/// Split a str by any char in delims. Returns matched char, or '\0' if end of string
+char str_split_any(struct str *head, struct str *tail, struct str input, char const *delims);
 /// Remove first char from intput, put result in tail
 char str_shift(struct str *tail, struct str input);
 /// Parse an integer, put remaining string in tail. If no number, returns ERR_NONE.
-enum err str_take_int(i32 *n, struct str *tail, struct str input);
+enum err str_take_int(i64 *n, struct str *tail, struct str input);
 /// Trim whitespace
 struct str str_trim_whitespace(struct str s);
+/// Print str to stdout
+void str_println(struct str s);
+/// Print str to debug log
+#define str_log_dbg(s) log_dbg("%.*s", (int)(s).len, (s).ptr)
 
 // Owned, heap-allocated, null-terminated string buffer
 struct cstrbuf {

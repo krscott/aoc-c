@@ -2,6 +2,7 @@
 
 #include <ctype.h>
 #include <errno.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -21,30 +22,60 @@ struct str str_substr(struct str s, ssize_t start, ssize_t end) {
     };
 }
 
-char str_split(struct str *left, struct str *right, struct str input, char const *delims) {
+struct str str_split(struct str *tail, struct str input, char const *delim) {
+    assert(delim);
+
     if (input.ptr == NULL) {
-        if (left) *left = (struct str){0};
-        if (right) *right = (struct str){0};
+        if (tail) *tail = (struct str){0};
+        return (struct str){0};
+    }
+
+    ssize_t delim_len = strlen(delim);
+    assert(delim_len > 0);
+
+    for (ssize_t i = 0; i < input.len - delim_len + 1; ++i) {
+        if (strncmp(&input.ptr[i], delim, delim_len) == 0) {
+            *tail = (struct str){
+                .ptr = &input.ptr[i + delim_len],
+                .len = input.len - i - delim_len,
+            };
+            return (struct str){
+                .ptr = input.ptr,
+                .len = i,
+            };
+        }
+    }
+
+    *tail = (struct str){0};
+    return input;
+}
+
+char str_split_any(struct str *head, struct str *tail, struct str input, char const *delims) {
+    assert(delims);
+
+    if (input.ptr == NULL) {
+        if (head) *head = (struct str){0};
+        if (tail) *tail = (struct str){0};
         return '\0';
     }
 
     for (ssize_t i = 0; i < input.len; ++i) {
         char *match = strchr(delims, input.ptr[i]);
         if (match) {
-            if (left) {
-                left->ptr = input.ptr;
-                left->len = i;
+            if (head) {
+                head->ptr = input.ptr;
+                head->len = i;
             }
-            if (right) {
-                right->ptr = &input.ptr[i + 1];
-                right->len = input.len - i - 1;
+            if (tail) {
+                tail->ptr = &input.ptr[i + 1];
+                tail->len = input.len - i - 1;
             }
             return *match;
         }
     }
 
-    if (left) *left = input;
-    if (right) *right = (struct str){0};
+    if (head) *head = input;
+    if (tail) *tail = (struct str){0};
     return '\0';
 }
 
@@ -66,8 +97,11 @@ char str_shift(struct str *tail, struct str input) {
     return input.ptr[0];
 }
 
-enum err str_take_int(i32 *n, struct str *tail, struct str input) {
+enum err str_take_int(i64 *n, struct str *tail, struct str input) {
     assert(n);
+
+    if (input.len == 0) return ERR_NONE;
+
     char *end;
     errno = 0;
     *n = strtol(input.ptr, &end, 10);
@@ -187,3 +221,5 @@ enum err cstrbuf_push(struct cstrbuf *s, char ch) {
 void cstrbuf_deinit(struct cstrbuf *s) {
     if (s->ptr) free(s->ptr);
 }
+
+void str_println(struct str s) { printf("%.*s\n", (int)s.len, s.ptr); }

@@ -2,7 +2,6 @@
 
 #include <assert.h>
 #include <errno.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -50,8 +49,8 @@ enum err cli_file_lines(struct linevec *lines, int argc, char *argv[]) {
     for (;;) {
         struct str line;
         e = fileiter_line(&line, &iter);
+        if (e == ERR_NONE) break;
         if (e) goto error;
-        if (!line.ptr) break;
 
         struct cstrbuf linebuf;
         cstrbuf_init_copy_str(&linebuf, str_trim_whitespace(line));
@@ -73,18 +72,20 @@ enum err fileiter_init_cli(struct fileiter *iter, int argc, char *argv[]) {
 
 enum err fileiter_line(struct str *s, struct fileiter *iter) {
     ssize_t line_length = getline(&iter->buffer, &iter->size, iter->file);
-    if (line_length < 0) {
-        *s = (struct str){0};
-    } else {
-        *s = (struct str){
-            .ptr = iter->buffer,
-            .len = line_length,
-        };
-    }
     if (errno) {
         log_err("getline failed: %s", strerror(errno));
+        *s = (struct str){0};
         return ERR_ERRNO;
     }
+    if (line_length < 0) {
+        *s = (struct str){0};
+        return ERR_NONE;
+    }
+    *s = str_trim_whitespace((struct str){
+        .ptr = iter->buffer,
+        .len = line_length,
+    });
+    str_log_dbg(*s);
     return OK;
 }
 

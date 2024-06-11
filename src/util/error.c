@@ -2,6 +2,7 @@
 
 #include <assert.h>
 #include <errno.h>
+#include <stdio.h>
 #include <string.h>
 
 char const* err_string(enum err e) {

@@ -13,7 +13,7 @@ bool is_symbol(char const c) {
     }
 }
 
-i32 get_number(struct cstrbuf *line, ssize_t const col) {
+i64 get_number(struct cstrbuf *line, ssize_t const col) {
     if (col < 0 || col >= line->len || !isdigit(line->ptr[col])) return 0;
 
     ssize_t left = col;
@@ -21,7 +21,7 @@ i32 get_number(struct cstrbuf *line, ssize_t const col) {
 
     char *start = &line->ptr[left];
     char *end;
-    i32 n = strtol(start, &end, 10);
+    i64 n = strtol(start, &end, 10);
     /* printf("get_number: %zd %d\n", col, n); */
     if (PART1) {
         // Blank out number to prevent double-counting
@@ -35,7 +35,7 @@ i32 get_number(struct cstrbuf *line, ssize_t const col) {
 }
 
 enum err push_number(struct intvec *nums, struct cstrbuf *line, ssize_t col) {
-    i32 n = get_number(line, col);
+    i64 n = get_number(line, col);
     if (n) return vec_push(nums, n);
     return OK;
 }
@@ -43,7 +43,7 @@ enum err push_number(struct intvec *nums, struct cstrbuf *line, ssize_t col) {
 enum err push_row_adjacent_numbers(struct intvec *nums, struct cstrbuf *line, ssize_t col) {
     enum err e = OK;
     // If a number exists in the center, then there can be only one number
-    i32 n = get_number(line, col);
+    i64 n = get_number(line, col);
     if (n) return vec_push(nums, n);
 
     n = get_number(line, col - 1);
@@ -89,7 +89,7 @@ int main(int argc, char *argv[]) {
     enum err e = cli_file_lines(&lines, argc, argv);
     if (e) goto error;
 
-    i32 total = 0;
+    i64 total = 0;
 
     for (ssize_t row = 0; row < lines.len; ++row) {
         struct cstrbuf line = lines.buf[row];
@@ -115,7 +115,7 @@ int main(int argc, char *argv[]) {
     /*     printf("%.*s\n", (int)lines.buf[row].len, lines.buf[row].ptr); */
     /* } */
 
-    printf("%d\n", total);
+    printf("%ld\n", total);
 
 error:
     vec_deinit(&nums);

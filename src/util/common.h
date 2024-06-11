@@ -5,7 +5,7 @@
 
 #define countof(a) (sizeof(a) / sizeof(*(a)))
 
-typedef int32_t i32;
-inline i32 max_i32(i32 a, i32 b) { return (a > b) ? a : b; }
+typedef int64_t i64;
+inline i64 max_i32(i64 a, i64 b) { return (a > b) ? a : b; }
 
 #endif  // UTIL_H

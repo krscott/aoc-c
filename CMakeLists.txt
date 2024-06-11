@@ -7,6 +7,10 @@ set(CMAKE_BUILD_TYPE Debug)
 set(CMAKE_C_STANDARD 17)
 set(CMAKE_C_STANDARD_REQUIRED True)
 
+if (DEFINED ENV{LOG_DBG})
+    add_compile_definitions(LOG_DBG=$ENV{LOG_DBG})
+endif()
+
 function(add_day day part utils)
     get_filename_component(basename ${day} NAME_WE)
     set(target ${basename}${part})
@@ -67,3 +71,6 @@ do_test(day04a 04-example.txt 13)
 do_test(day04a 04.txt 21568)
 do_test(day04b 04-example.txt 30)
 do_test(day04b 04.txt 11827296)
+
+do_test(day05a 05-example.txt 35)
+do_test(day05a 05.txt 525792406)

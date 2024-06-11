@@ -6,20 +6,19 @@
 #include "util/str.h"
 
 struct linedata {
-    i32 id;
-    i32 r;
-    i32 g;
-    i32 b;
+    i64 id;
+    i64 r;
+    i64 g;
+    i64 b;
 };
 
 static enum err parse_round(struct linedata *data, struct str round) {
     assert(data);
     enum err e = OK;
-    for (;;) {
-        struct str color;
-        char delim = str_split(&color, &round, round, ",");
+    while (round.len > 0) {
+        struct str color = str_split(&round, round, ",");
 
-        i32 count;
+        i64 count;
         e = str_take_int(&count, &color, color);
         if (e) goto error;
 
@@ -36,8 +35,6 @@ static enum err parse_round(struct linedata *data, struct str round) {
             e = ERR_INPUT;
             goto error;
         }
-
-        if (!delim) break;
     }
 
 error:
@@ -50,28 +47,24 @@ static enum err linedata_get(struct linedata *data, struct str line) {
     enum err e = OK;
 
     // Game
-    str_split(NULL, &line, line, " ");
+    str_split(&line, line, " ");
 
     // ID
     e = str_take_int(&data->id, &line, line);
     if (e) goto error;
-    str_split(NULL, &line, line, ":");
+    str_split(&line, line, ":");
 
-    for (;;) {
-        struct str round;
-        char delim = str_split(&round, &line, line, ";");
-
+    while (line.len > 0) {
+        struct str round = str_split(&line, line, ";");
         e = parse_round(data, round);
         if (e) goto error;
-
-        if (!delim) break;
     }
 
 error:
     return e;
 }
 
-static enum err parse_line(i32 *total, struct str line) {
+static enum err parse_line(i64 *total, struct str line) {
     struct linedata data = {0};
     enum err e = linedata_get(&data, line);
     if (e) goto error;
@@ -93,19 +86,19 @@ int main(int argc, char *argv[]) {
     enum err e = fileiter_init_cli(&f, argc, argv);
     if (e) goto error;
 
-    i32 total = 0;
+    i64 total = 0;
 
     for (;;) {
         struct str line;
         e = fileiter_line(&line, &f);
+        if (e == ERR_NONE) break;
         if (e) goto error;
-        if (!line.ptr) break;
 
         e = parse_line(&total, line);
         if (e) goto error;
     }
 
-    printf("%d\n", total);
+    printf("%ld\n", total);
 
 error:
     fileiter_deinit(&f);

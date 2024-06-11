@@ -17,7 +17,7 @@ static char const *digits[] = {
     "nine",
 };
 
-static i32 get_word_digit(struct str s) {
+static i64 get_word_digit(struct str s) {
     assert(s.len > 0);
     for (ssize_t i = 0; i < (ssize_t)countof(digits); ++i) {
         for (ssize_t j = 0;; ++j) {
@@ -28,14 +28,14 @@ static i32 get_word_digit(struct str s) {
     return -1;
 }
 
-static enum err add_line_calibration_p2(i32 *cal, struct str line) {
+static enum err add_line_calibration_p2(i64 *cal, struct str line) {
     if (line.len <= 0) return OK;
 
-    i32 first = -1;
-    i32 last = -1;
+    i64 first = -1;
+    i64 last = -1;
 
     for (ssize_t i = 0; i < line.len; ++i) {
-        i32 d = -1;
+        i64 d = -1;
         char c = line.ptr[i];
         if (c >= '0' && c <= '9') {
             d = c - '0';
@@ -58,16 +58,16 @@ static enum err add_line_calibration_p2(i32 *cal, struct str line) {
     return OK;
 }
 
-static enum err add_line_calibration_p1(i32 *cal, struct str line) {
+static enum err add_line_calibration_p1(i64 *cal, struct str line) {
     if (line.len <= 0) return OK;
 
-    i32 first = -1;
-    i32 last = -1;
+    i64 first = -1;
+    i64 last = -1;
 
     for (ssize_t i = 0; i < line.len; ++i) {
         char c = line.ptr[i];
         if (c >= '0' && c <= '9') {
-            i32 const x = c - '0';
+            i64 const x = c - '0';
             if (first == -1) first = x;
             last = x;
         }
@@ -88,13 +88,13 @@ int main(int argc, char *argv[]) {
     enum err e = fileiter_init_cli(&f, argc, argv);
     if (e) goto error;
 
-    i32 total = 0;
+    i64 total = 0;
 
     for (;;) {
         struct str line;
         e = fileiter_line(&line, &f);
+        if (e == ERR_NONE) break;
         if (e) goto error;
-        if (!line.ptr) break;
 
         if (PART1) {
             e = add_line_calibration_p1(&total, line);
@@ -104,7 +104,7 @@ int main(int argc, char *argv[]) {
         if (e) goto error;
     }
 
-    printf("%d\n", total);
+    printf("%ld\n", total);
 
 error:
     fileiter_deinit(&f);
