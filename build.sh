@@ -24,7 +24,7 @@ build() {
 	(
 		cd-build-dir
 		cmake ../..
-		cmake --build .
+		cmake --build . -- -j
 	)
 	if ! [[ -L $COMP_CMDS_FILENAME ]] && ! [[ -e $COMP_CMDS_FILENAME ]]; then
 		ln -s "$BUILD_DIR/$COMP_CMDS_FILENAME" "$COMP_CMDS_FILENAME"
@@ -47,7 +47,7 @@ case "$1" in
 		build
 		(
 			cd-build-dir
-			ctest -T memcheck
+			ctest -T memcheck -j
 		)
 		;;
 	run)
