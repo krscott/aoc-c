@@ -3,6 +3,7 @@
 
 #include "common.h"
 #include "error.h"
+#include "log.h"
 #include "vec.h"
 
 vec_define_struct(intvec, i64);

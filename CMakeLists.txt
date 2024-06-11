@@ -11,12 +11,35 @@ if (DEFINED ENV{LOG_DBG})
     add_compile_definitions(LOG_DBG=$ENV{LOG_DBG})
 endif()
 
+add_compile_options(
+    -Wall
+    -Wextra
+    -Werror
+    -pedantic
+    -Wbad-function-cast
+    -Wcast-align
+    -Wcast-qual
+    -Wformat=2
+    -Wnested-externs
+    -Wpointer-arith
+    -Wredundant-decls
+    -Wsequence-point
+    -Wshadow
+    -Wstrict-prototypes
+    -Wswitch
+    -Wundef
+    -Wunreachable-code
+    -Wunused-but-set-parameter
+    -Wwrite-strings
+    -Wpointer-to-int-cast
+    -Wint-to-pointer-cast
+)
+
 function(add_day day part utils)
     get_filename_component(basename ${day} NAME_WE)
     set(target ${basename}${part})
     message(${utils})
     add_executable(${target} ${day} ${utils})
-    target_compile_options(${target} PRIVATE -Wall -Wextra -Werror -pedantic)
     if(${part} MATCHES "a")
         target_compile_definitions(${target} PRIVATE PART1=1)
     elseif(${part} MATCHES "b")
