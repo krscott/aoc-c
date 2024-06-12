@@ -5,14 +5,14 @@
 
 #include "error.h"
 
-vec_define_struct(vec, void);
+vec_define_struct(vec__anyvec, void);
 
-void vec__deinit(struct vec *vec, size_t elem_size) {
+void vec__deinit(struct vec__anyvec *vec, size_t elem_size) {
     (void)elem_size;
     if (vec->ptr) free(vec->ptr);
 }
 
-ERRFN vec__reserve(struct vec *vec, size_t elem_size, ssize_t additional) {
+ERRFN vec__reserve(struct vec__anyvec *vec, size_t elem_size, ssize_t additional) {
     ssize_t const min_cap = 8;
 
     assert(additional > 0);

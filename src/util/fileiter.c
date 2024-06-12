@@ -15,7 +15,7 @@ void linevec_deinit(struct linevec *lines) {
     for (ssize_t i = 0; i < lines->len; ++i) {
         strbuf_deinit(&lines->ptr[i]);
     }
-    vec_deinit(lines);
+    vec_deinit(linevec, lines);
 }
 
 NODISCARD char linevec_get(struct linevec const lines, ssize_t const row, ssize_t const col) {
@@ -62,7 +62,7 @@ ERRFN cli_file_lines(struct linevec *lines, int argc, char *argv[]) {
         e = strbuf_init_copy_str(&linebuf, str_trim_whitespace(line));
         if (e) goto error;
 
-        e = vec_push(lines, linebuf);
+        e = vec_push(linevec, lines, linebuf);
         if (e) goto error;
     }
 

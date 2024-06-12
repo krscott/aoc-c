@@ -24,7 +24,7 @@ static ERRFN get_card_wins(i64 *wins, struct str line) {
             break;
         }
         if (e) goto error;
-        e = vec_push(&winners, winner_num);
+        e = vec_push(intvec, &winners, winner_num);
         if (e) goto error;
     }
 
@@ -46,7 +46,7 @@ static ERRFN get_card_wins(i64 *wins, struct str line) {
     }
 
 error:
-    vec_deinit(&winners);
+    vec_deinit(intvec, &winners);
     return e;
 }
 
@@ -68,11 +68,11 @@ int main(int argc, char *argv[]) {
         e = get_card_wins(&wins, line);
         if (e) goto error;
 
-        e = vec_push(&card_wins, wins);
+        e = vec_push(intvec, &card_wins, wins);
         if (e) goto error;
 
         if (!PART1) {
-            e = vec_push(&card_count, 1);
+            e = vec_push(intvec, &card_count, 1);
             if (e) goto error;
         }
     }
@@ -99,8 +99,8 @@ int main(int argc, char *argv[]) {
     printf("%ld\n", total);
 
 error:
-    vec_deinit(&card_wins);
-    vec_deinit(&card_count);
+    vec_deinit(intvec, &card_wins);
+    vec_deinit(intvec, &card_count);
     fileiter_deinit(&f);
     return e;
 }

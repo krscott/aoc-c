@@ -54,7 +54,7 @@ static ERRFN parse_seeds(struct seedvec *seeds, struct fileiter *f) {
                     return e;
             }
         }
-        e = vec_push(seeds, seed);
+        e = vec_push(seedvec, seeds, seed);
         if (e) return e;
     }
 }
@@ -81,7 +81,7 @@ static ERRFN parse_ranges(struct rangevec *ranges, struct fileiter *f) {
         if (e) return e;
         switch (e = parse_range(&range, line)) {
             case OK:
-                e = vec_push(ranges, range);
+                e = vec_push(rangevec, ranges, range);
                 if (e) return e;
                 break;
             case ERR_NONE:
@@ -122,7 +122,7 @@ static ERRFN transform_seeds(struct seedvec *seeds, struct rangevec_slice const 
                     new_seed.len
                 );
 
-                enum err e = vec_push(seeds, new_seed);
+                enum err e = vec_push(seedvec, seeds, new_seed);
                 if (e) return e;
 
                 seeds->ptr[i] = seed = old_seed;
@@ -147,7 +147,7 @@ static ERRFN transform_seeds(struct seedvec *seeds, struct rangevec_slice const 
                     new_seed.len
                 );
 
-                enum err e = vec_push(seeds, new_seed);
+                enum err e = vec_push(seedvec, seeds, new_seed);
                 if (e) return e;
 
                 seeds->ptr[i] = seed = old_seed;
@@ -181,11 +181,11 @@ static inline void seedvec_log_debug(struct seedvec seeds) {
 #if LOG_DBG
     struct intvec seed_flat = {0};
     for (ssize_t i = 0; i < seeds.len; ++i) {
-        (void)vec_push(&seed_flat, seeds.ptr[i].start);
-        (void)vec_push(&seed_flat, seeds.ptr[i].len);
+        (void)vec_push(intvec, &seed_flat, seeds.ptr[i].start);
+        (void)vec_push(intvec, &seed_flat, seeds.ptr[i].len);
     }
     intvec_log_dbg(seed_flat);
-    vec_deinit(&seed_flat);
+    vec_deinit(intvec, &seed_flat);
 #else
     (void)seeds;
 #endif
@@ -221,7 +221,7 @@ int main(int argc, char *argv[]) {
 
     ssize_t map_i = 0;
     for (; e != ERR_NONE; ++map_i) {
-        vec_clear(&ranges);
+        vec_clear(rangevec, &ranges);
         e = parse_ranges(&ranges, &f);
         if (e > ERR_NONE) goto error;
 
@@ -244,8 +244,8 @@ int main(int argc, char *argv[]) {
     printf("%ld\n", min);
 
 error:
-    vec_deinit(&ranges);
-    vec_deinit(&seeds);
+    vec_deinit(rangevec, &ranges);
+    vec_deinit(seedvec, &seeds);
     fileiter_deinit(&f);
     return e;
 }

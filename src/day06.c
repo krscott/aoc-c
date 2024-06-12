@@ -22,7 +22,7 @@ static ERRFN parse_races(struct racevec *races, struct str times, struct str dis
         struct race race;
         e = str_take_int(&race.time, &times, times)                 //
             || str_take_int(&race.distance, &distances, distances)  //
-            || vec_push(races, race);
+            || vec_push(racevec, races, race);
         if (e > ERR_NONE) return e;
     }
 
@@ -80,7 +80,7 @@ int main(int argc, char *argv[]) {
     printf("%ld\n", wins);
 
 error:
-    vec_deinit(&races);
+    vec_deinit(racevec, &races);
     linevec_deinit(&lines);
     return e;
 }
