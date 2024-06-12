@@ -64,18 +64,18 @@ enum err get_adjacent_numbers(
     enum err e = OK;
     // Top
     if (row > 0) {
-        e = push_row_adjacent_numbers(nums, &lines->buf[row - 1], col);
+        e = push_row_adjacent_numbers(nums, &lines->ptr[row - 1], col);
         if (e) return e;
     }
     // Left
-    e = push_number(nums, &lines->buf[row], col - 1);
+    e = push_number(nums, &lines->ptr[row], col - 1);
     if (e) return e;
     // Right
-    e = push_number(nums, &lines->buf[row], col + 1);
+    e = push_number(nums, &lines->ptr[row], col + 1);
     if (e) return e;
     // Bottom
     if (row < lines->len - 1) {
-        e = push_row_adjacent_numbers(nums, &lines->buf[row + 1], col);
+        e = push_row_adjacent_numbers(nums, &lines->ptr[row + 1], col);
         if (e) return e;
     }
 
@@ -92,7 +92,7 @@ int main(int argc, char *argv[]) {
     i64 total = 0;
 
     for (ssize_t row = 0; row < lines.len; ++row) {
-        struct strbuf line = lines.buf[row];
+        struct strbuf line = lines.ptr[row];
         for (ssize_t col = 0; col < line.len; ++col) {
             char const value = line.ptr[col];
             if (is_symbol(value)) {
@@ -109,11 +109,6 @@ int main(int argc, char *argv[]) {
             }
         }
     }
-
-    /* printf("\n"); */
-    /* for (ssize_t row = 0; row < lines.len; ++row) { */
-    /*     printf("%.*s\n", (int)lines.buf[row].len, lines.buf[row].ptr); */
-    /* } */
 
     printf("%ld\n", total);
 

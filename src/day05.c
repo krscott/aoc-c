@@ -92,7 +92,7 @@ static enum err parse_ranges(struct rangevec *ranges, struct fileiter *f) {
 
 static void transform_seeds(struct seedvec *seeds, struct rangevec_slice const ranges) {
     for (ssize_t i = 0; i < seeds->len; ++i) {
-        struct seed seed = seeds->buf[i];
+        struct seed seed = seeds->ptr[i];
         for (ssize_t j = 0; j < ranges.len; ++j) {
             struct range const range = ranges.ptr[j];
             i64 range_end = range.src + range.len;
@@ -120,7 +120,7 @@ static void transform_seeds(struct seedvec *seeds, struct rangevec_slice const r
                     new_seed.len
                 );
                 vec_push(seeds, new_seed);
-                seeds->buf[i] = seed = old_seed;
+                seeds->ptr[i] = seed = old_seed;
             } else if (range_end > seed.start && range_end < seed_end) {
                 struct seed old_seed = {
                     .start = seed.start,
@@ -142,7 +142,7 @@ static void transform_seeds(struct seedvec *seeds, struct rangevec_slice const r
                     new_seed.len
                 );
                 vec_push(seeds, new_seed);
-                seeds->buf[i] = seed = old_seed;
+                seeds->ptr[i] = seed = old_seed;
             }
 
             // Transform seed start
@@ -161,7 +161,7 @@ static void transform_seeds(struct seedvec *seeds, struct rangevec_slice const r
                     moved_seed.start,
                     moved_seed.len
                 );
-                seeds->buf[i] = moved_seed;
+                seeds->ptr[i] = moved_seed;
                 break;
             }
         }
@@ -172,8 +172,8 @@ static inline void seedvec_log_debug(struct seedvec seeds) {
 #if LOG_DBG
     struct intvec seed_flat = {0};
     for (ssize_t i = 0; i < seeds.len; ++i) {
-        vec_push(&seed_flat, seeds.buf[i].start);
-        vec_push(&seed_flat, seeds.buf[i].len);
+        vec_push(&seed_flat, seeds.ptr[i].start);
+        vec_push(&seed_flat, seeds.ptr[i].len);
     }
     intvec_log_dbg(seed_flat);
     vec_deinit(&seed_flat);
@@ -184,7 +184,7 @@ static inline void seedvec_log_debug(struct seedvec seeds) {
 
 enum err get_min_seed(i64 *min, struct seedvec *seeds) {
     ssize_t len = seeds->len;
-    struct seed *buf = seeds->buf;
+    struct seed *buf = seeds->ptr;
     if (len == 0) return err_trace(ERR_INPUT);
     i64 x = buf[0].start;
     for (ssize_t i = 1; i < len; ++i) {

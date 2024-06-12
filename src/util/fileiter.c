@@ -12,7 +12,7 @@
 
 void linevec_deinit(struct linevec *lines) {
     for (ssize_t i = 0; i < lines->len; ++i) {
-        strbuf_deinit(&lines->buf[i]);
+        strbuf_deinit(&lines->ptr[i]);
     }
     vec_deinit(lines);
 }
@@ -21,7 +21,7 @@ char linevec_get(struct linevec const lines, ssize_t const row, ssize_t const co
     assert(row >= 0);
     assert(col >= 0);
     if (row < 0 || row >= lines.len) return '\0';
-    struct strbuf const line = lines.buf[row];
+    struct strbuf const line = lines.ptr[row];
     if (col < 0 || col >= line.len) return '\0';
     return line.ptr[col];
 }

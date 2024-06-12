@@ -38,7 +38,7 @@ enum err get_card_wins(i64 *wins, struct str line) {
         if (e) goto error;
 
         for (ssize_t i = 0; i < winners.len; ++i) {
-            if (winners.buf[i] == hand_num) {
+            if (winners.ptr[i] == hand_num) {
                 *wins += 1;
                 break;
             }
@@ -73,18 +73,18 @@ int main(int argc, char *argv[]) {
 
     i64 total = 0;
     for (ssize_t i = 0; i < card_wins.len; ++i) {
-        i64 wins = card_wins.buf[i];
+        i64 wins = card_wins.ptr[i];
         if (PART1) {
             if (wins > 0) total += 1 << (wins - 1);
         } else {
-            i64 count = card_count.buf[i];
+            i64 count = card_count.ptr[i];
             for (ssize_t j = 1; j <= wins; ++j) {
                 if (i + j >= card_count.len) {
                     log_err("Card %zd counted past last card", i);
                     e = ERR_INPUT;
                     goto error;
                 }
-                card_count.buf[i + j] += count;
+                card_count.ptr[i + j] += count;
             }
             total += count;
         }

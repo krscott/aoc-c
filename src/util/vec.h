@@ -11,7 +11,7 @@ struct vec;
 
 #define vec_define_struct(name, T) \
     struct name {                  \
-        T *buf;                    \
+        T *ptr;                    \
         ssize_t len;               \
         ssize_t cap;               \
     };                             \
@@ -23,7 +23,7 @@ struct vec;
         ssize_t len;               \
     }
 
-#define vec__detype(v) (struct vec *)(v), sizeof(*(v)->buf)
+#define vec__detype(v) (struct vec *)(v), sizeof(*(v)->ptr)
 
 #define vec_deinit(v) vec__deinit(vec__detype(v))
 void vec__deinit(struct vec *vec, size_t elem_size);
@@ -31,7 +31,7 @@ void vec__deinit(struct vec *vec, size_t elem_size);
 #define vec_reserve(v, additional) vec__reserve(vec__detype(v), additional)
 enum err vec__reserve(struct vec *vec, size_t elem_size, ssize_t additional);
 
-#define vec_push(v, elem) (vec_reserve(v, 1) || ((v)->buf[(v)->len++] = elem, OK))
+#define vec_push(v, elem) (vec_reserve(v, 1) || ((v)->ptr[(v)->len++] = elem, OK))
 
 #define vec_clear(v) ((v)->len = 0)
 
@@ -39,7 +39,7 @@ enum err vec__reserve(struct vec *vec, size_t elem_size, ssize_t additional);
 // (i.e. Try removing the cast and attempt to refactor-rename the struct)
 #define vec_slice(name, v)                                          \
     ((struct name##_slice){                                         \
-        .ptr = (struct name##__typecheck){.inner = *(v)}.inner.buf, \
+        .ptr = (struct name##__typecheck){.inner = *(v)}.inner.ptr, \
         .len = ((struct name *)(v))->len,                           \
     })
 

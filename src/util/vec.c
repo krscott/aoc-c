@@ -9,7 +9,7 @@ vec_define_struct(vec, void);
 
 void vec__deinit(struct vec *vec, size_t elem_size) {
     (void)elem_size;
-    if (vec->buf) free(vec->buf);
+    if (vec->ptr) free(vec->ptr);
 }
 
 enum err vec__reserve(struct vec *vec, size_t elem_size, ssize_t additional) {
@@ -24,10 +24,10 @@ enum err vec__reserve(struct vec *vec, size_t elem_size, ssize_t additional) {
             new_cap *= 2;
         }
 
-        char *new_buf = realloc(vec->buf, new_cap * elem_size);
+        char *new_buf = realloc(vec->ptr, new_cap * elem_size);
         if (!new_buf) return err_trace(ERR_MEM);
 
-        vec->buf = new_buf;
+        vec->ptr = new_buf;
         vec->cap = new_cap;
         assert(vec->len < vec->cap);
     }
