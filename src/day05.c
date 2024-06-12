@@ -90,11 +90,11 @@ static enum err parse_ranges(struct rangevec *ranges, struct fileiter *f) {
     }
 }
 
-static void transform_seeds(struct seedvec *seeds, struct rangevec const *ranges) {
+static void transform_seeds(struct seedvec *seeds, struct rangevec_slice const ranges) {
     for (ssize_t i = 0; i < seeds->len; ++i) {
         struct seed seed = seeds->buf[i];
-        for (ssize_t j = 0; j < ranges->len; ++j) {
-            struct range const range = ranges->buf[j];
+        for (ssize_t j = 0; j < ranges.len; ++j) {
+            struct range const range = ranges.ptr[j];
             i64 range_end = range.src + range.len;
             i64 seed_end = seed.start + seed.len;
 
@@ -215,7 +215,7 @@ int main(int argc, char *argv[]) {
         vec_clear(&ranges);
         e = parse_ranges(&ranges, &f);
         if (e > ERR_NONE) goto error;
-        transform_seeds(&seeds, &ranges);
+        transform_seeds(&seeds, vec_slice(rangevec, &ranges));
 
         seedvec_log_debug(seeds);
     }
