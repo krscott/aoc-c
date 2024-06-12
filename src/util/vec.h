@@ -14,37 +14,37 @@ struct vec__anyvec;
         T *ptr;                    \
         ssize_t len;               \
         ssize_t cap;               \
-    };                             \
-    struct name##__typecheck {     \
-        struct name *inner;        \
-    };                             \
-    struct name##_slice {          \
-        T *ptr;                    \
-        ssize_t len;               \
     }
 
-// Assign to name##__typecheck for type safety.
+#define span_define_struct(name, T) \
+    struct name {                   \
+        T *ptr;                     \
+        ssize_t len;                \
+    }
+
+// Struct type check macro
 // Casting to (struct name *) is redundant, but required for IDE support
 // (i.e. Try removing the cast and attempt to refactor-rename the struct)
-#define vec__assert_type(name, v) ((struct name *)(struct name##__typecheck){.inner = (v)}.inner)
+#define vec__assert_type(S, v) ((S *)(struct { S *inner; }){.inner = (v)}.inner)
 
-#define vec__destructure(name, v) (struct vec__anyvec *)(v), sizeof(*vec__assert_type(name, v)->ptr)
+#define vec__destructure(name, v) \
+    (struct vec__anyvec *)(v), sizeof(*vec__assert_type(struct name, (v))->ptr)
 
-#define vec_deinit(name, v) vec__deinit(vec__destructure(name, v))
+#define vec_deinit(name, v) vec__deinit(vec__destructure(name, (v)))
 void vec__deinit(struct vec__anyvec *vec, size_t elem_size);
 
-#define vec_reserve(name, v, additional) vec__reserve(vec__destructure(name, v), additional)
+#define vec_reserve(name, v, additional) vec__reserve(vec__destructure(name, (v)), additional)
 ERRFN vec__reserve(struct vec__anyvec *vec, size_t elem_size, ssize_t additional);
 
 #define vec_push(name, v, elem) \
-    err_nodiscard((vec_reserve(name, v, 1) || ((v)->ptr[(v)->len++] = elem, OK)))
+    err_nodiscard((vec_reserve(name, (v), 1) || ((v)->ptr[(v)->len++] = elem, OK)))
 
-#define vec_clear(name, v) ((v)->len = 0)
+#define vec_clear(name, v) (vec__assert_type(struct name, (v))->len = 0)
 
-#define vec_slice(name, v)                     \
-    ((struct name##_slice){                    \
-        .ptr = vec__assert_type(name, v)->ptr, \
-        .len = (v)->len,                       \
+#define vec_to_span(vec_name, span_name, v)                 \
+    ((struct span_name){                                    \
+        .ptr = vec__assert_type(struct vec_name, (v))->ptr, \
+        .len = (v)->len,                                    \
     })
 
 #endif  // VEC_H

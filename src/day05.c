@@ -22,6 +22,7 @@ struct range {
     i64 len;
 };
 vec_define_struct(rangevec, struct range);
+span_define_struct(rangespan, struct range);
 
 static ERRFN parse_seeds(struct seedvec *seeds, struct fileiter *f) {
     enum err e = OK;
@@ -92,7 +93,7 @@ static ERRFN parse_ranges(struct rangevec *ranges, struct fileiter *f) {
     }
 }
 
-static ERRFN transform_seeds(struct seedvec *seeds, struct rangevec_slice const ranges) {
+static ERRFN transform_seeds(struct seedvec *seeds, struct rangespan const ranges) {
     for (ssize_t i = 0; i < seeds->len; ++i) {
         struct seed seed = seeds->ptr[i];
         for (ssize_t j = 0; j < ranges.len; ++j) {
@@ -225,7 +226,7 @@ int main(int argc, char *argv[]) {
         e = parse_ranges(&ranges, &f);
         if (e > ERR_NONE) goto error;
 
-        enum err e2 = transform_seeds(&seeds, vec_slice(rangevec, &ranges));
+        enum err e2 = transform_seeds(&seeds, vec_to_span(rangevec, rangespan, &ranges));
         if (e2) goto error;
 
         seedvec_log_debug(seeds);
