@@ -12,6 +12,7 @@
 #include "log.h"
 
 extern inline void strbuf_assert_valid(struct strbuf *s);
+extern inline NODISCARD struct str strbuf_to_str(struct strbuf s);
 
 NODISCARD struct str str_substr(struct str s, ssize_t start, ssize_t end) {
     assert(s.ptr);

@@ -64,7 +64,7 @@ ERRFN strbuf_reserve(struct strbuf *s, ssize_t additional);
 /// Append a character to the end of the buffer and move the null terminator
 ERRFN strbuf_push(struct strbuf *s, char ch);
 /// Get a str view
-NODISCARD inline struct str strbuf_to_str(struct strbuf s) {
+inline NODISCARD struct str strbuf_to_str(struct strbuf s) {
     return (struct str){
         .ptr = s.ptr,
         .len = s.len,
