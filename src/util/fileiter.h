@@ -11,7 +11,7 @@ struct fileiter {
     char *buffer;
 };
 
-vec_define_struct(linevec, struct cstrbuf);
+vec_define_struct(linevec, struct strbuf);
 void linevec_deinit(struct linevec *lines);
 char linevec_get(struct linevec lines, ssize_t row, ssize_t col);
 

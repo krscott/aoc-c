@@ -7,7 +7,7 @@
 #include "common.h"
 #include "error.h"
 
-// Fat pointer string view
+/// Fat pointer string view
 struct str {
     char *ptr;
     ssize_t len;
@@ -30,8 +30,8 @@ void str_println(struct str s);
 /// Print str to debug log
 #define str_log_dbg(s) log_dbg("%.*s", (int)(s).len, (s).ptr)
 
-// Owned, heap-allocated, null-terminated string buffer
-struct cstrbuf {
+/// Owned, heap-allocated, null-terminated string buffer
+struct strbuf {
     char *ptr;
     /// Length of string, excluding null byte
     ssize_t len;
@@ -39,7 +39,7 @@ struct cstrbuf {
     ssize_t cap;
 };
 
-inline void cstrbuf_assert_valid(struct cstrbuf *s) {
+inline void strbuf_assert_valid(struct strbuf *s) {
     assert(s);
     if (s->cap > 0) {
         assert(s->ptr != NULL);
@@ -52,19 +52,19 @@ inline void cstrbuf_assert_valid(struct cstrbuf *s) {
     }
 }
 
-void cstrbuf_deinit(struct cstrbuf *s);
+void strbuf_deinit(struct strbuf *s);
 /// Move an owned null-terminated string into cstrbuf
-struct cstrbuf cstrbuf_from_owned_cstr(char *ptr);
+struct strbuf strbuf_from_owned_cstr(char *ptr);
 /// Create a cstrbuf by copying a cstr
-enum err cstrbuf_init_copy_cstr(struct cstrbuf *s, char const *ptr);
+enum err strbuf_init_copy_cstr(struct strbuf *s, char const *ptr);
 /// Create a cstrbuf by copying a str
-enum err cstrbuf_init_copy_str(struct cstrbuf *s, struct str other);
+enum err strbuf_init_copy_str(struct strbuf *s, struct str other);
 /// Reserve additional bytes beyond length
-enum err cstrbuf_reserve(struct cstrbuf *s, ssize_t additional);
+enum err strbuf_reserve(struct strbuf *s, ssize_t additional);
 /// Append a character to the end of the buffer and move the null terminator
-enum err cstrbuf_push(struct cstrbuf *s, char ch);
+enum err strbuf_push(struct strbuf *s, char ch);
 /// Get a str view
-inline struct str cstrbuf_to_str(struct cstrbuf s) {
+inline struct str cstrbuf_to_str(struct strbuf s) {
     return (struct str){
         .ptr = s.ptr,
         .len = s.len,

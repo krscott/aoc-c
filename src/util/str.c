@@ -9,7 +9,7 @@
 
 #include "error.h"
 
-extern inline void cstrbuf_assert_valid(struct cstrbuf *s);
+extern inline void strbuf_assert_valid(struct strbuf *s);
 
 struct str str_substr(struct str s, ssize_t start, ssize_t end) {
     assert(s.ptr);
@@ -130,21 +130,21 @@ struct str str_trim_whitespace(struct str s) {
     return s;
 }
 
-struct cstrbuf cstrbuf_from_owned_cstr(char *ptr) {
-    if (!ptr) return (struct cstrbuf){0};
+struct strbuf strbuf_from_owned_cstr(char *ptr) {
+    if (!ptr) return (struct strbuf){0};
 
     ssize_t len = strlen(ptr);
-    return (struct cstrbuf){
+    return (struct strbuf){
         .ptr = ptr,
         .len = len,
         .cap = len + 1,
     };
 }
 
-enum err cstrbuf_init_copy_str(struct cstrbuf *s, struct str other) {
+enum err strbuf_init_copy_str(struct strbuf *s, struct str other) {
     assert(s);
 
-    *s = (struct cstrbuf){0};
+    *s = (struct strbuf){0};
     if (other.len == 0) return OK;
 
     ssize_t const cap = other.len + 1;
@@ -160,8 +160,8 @@ enum err cstrbuf_init_copy_str(struct cstrbuf *s, struct str other) {
     return OK;
 }
 
-enum err cstrbuf_init_copy_cstr(struct cstrbuf *s, char const *ptr) {
-    *s = (struct cstrbuf){0};
+enum err strbuf_init_copy_cstr(struct strbuf *s, char const *ptr) {
+    *s = (struct strbuf){0};
     if (!ptr) return OK;
 
     ssize_t const len = strlen(ptr);
@@ -179,10 +179,10 @@ enum err cstrbuf_init_copy_cstr(struct cstrbuf *s, char const *ptr) {
     return OK;
 }
 
-enum err cstrbuf_reserve(struct cstrbuf *s, ssize_t additional) {
+enum err strbuf_reserve(struct strbuf *s, ssize_t additional) {
     ssize_t const min_cap = 8;
 
-    cstrbuf_assert_valid(s);
+    strbuf_assert_valid(s);
     assert(additional > 0);
     ssize_t total = s->len + 1 + additional;
 
@@ -204,11 +204,11 @@ enum err cstrbuf_reserve(struct cstrbuf *s, ssize_t additional) {
     return OK;
 }
 
-enum err cstrbuf_push(struct cstrbuf *s, char ch) {
-    cstrbuf_assert_valid(s);
+enum err strbuf_push(struct strbuf *s, char ch) {
+    strbuf_assert_valid(s);
     assert(ch);
 
-    enum err e = cstrbuf_reserve(s, 1);
+    enum err e = strbuf_reserve(s, 1);
     if (e) return e;
 
     s->ptr[s->len] = ch;
@@ -218,7 +218,7 @@ enum err cstrbuf_push(struct cstrbuf *s, char ch) {
     return OK;
 }
 
-void cstrbuf_deinit(struct cstrbuf *s) {
+void strbuf_deinit(struct strbuf *s) {
     if (s->ptr) free(s->ptr);
 }
 

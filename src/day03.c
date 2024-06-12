@@ -13,7 +13,7 @@ bool is_symbol(char const c) {
     }
 }
 
-i64 get_number(struct cstrbuf *line, ssize_t const col) {
+i64 get_number(struct strbuf *line, ssize_t const col) {
     if (col < 0 || col >= line->len || !isdigit(line->ptr[col])) return 0;
 
     ssize_t left = col;
@@ -34,13 +34,13 @@ i64 get_number(struct cstrbuf *line, ssize_t const col) {
     return n;
 }
 
-enum err push_number(struct intvec *nums, struct cstrbuf *line, ssize_t col) {
+enum err push_number(struct intvec *nums, struct strbuf *line, ssize_t col) {
     i64 n = get_number(line, col);
     if (n) return vec_push(nums, n);
     return OK;
 }
 
-enum err push_row_adjacent_numbers(struct intvec *nums, struct cstrbuf *line, ssize_t col) {
+enum err push_row_adjacent_numbers(struct intvec *nums, struct strbuf *line, ssize_t col) {
     enum err e = OK;
     // If a number exists in the center, then there can be only one number
     i64 n = get_number(line, col);
@@ -92,7 +92,7 @@ int main(int argc, char *argv[]) {
     i64 total = 0;
 
     for (ssize_t row = 0; row < lines.len; ++row) {
-        struct cstrbuf line = lines.buf[row];
+        struct strbuf line = lines.buf[row];
         for (ssize_t col = 0; col < line.len; ++col) {
             char const value = line.ptr[col];
             if (is_symbol(value)) {
