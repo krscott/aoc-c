@@ -7,11 +7,12 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "common.h"
 #include "error.h"
 
 extern inline void strbuf_assert_valid(struct strbuf *s);
 
-struct str str_substr(struct str s, ssize_t start, ssize_t end) {
+NODISCARD struct str str_substr(struct str s, ssize_t start, ssize_t end) {
     assert(s.ptr);
     assert(end > start);
     assert(start >= 0 && start < s.len);
@@ -97,7 +98,7 @@ char str_shift(struct str *tail, struct str input) {
     return input.ptr[0];
 }
 
-enum err str_take_int(i64 *n, struct str *tail, struct str input) {
+ERRFN str_take_int(i64 *n, struct str *tail, struct str input) {
     assert(n);
 
     if (input.len == 0) return ERR_NONE;
@@ -118,7 +119,7 @@ enum err str_take_int(i64 *n, struct str *tail, struct str input) {
     return OK;
 }
 
-struct str str_trim_whitespace(struct str s) {
+NODISCARD struct str str_trim_whitespace(struct str s) {
     if (s.len <= 0) return s;
     while (s.len > 0 && isspace(s.ptr[s.len - 1])) {
         --s.len;
@@ -130,7 +131,7 @@ struct str str_trim_whitespace(struct str s) {
     return s;
 }
 
-struct strbuf strbuf_from_owned_cstr(char *ptr) {
+NODISCARD struct strbuf strbuf_from_owned_cstr(char *ptr) {
     if (!ptr) return (struct strbuf){0};
 
     ssize_t len = strlen(ptr);
@@ -141,7 +142,7 @@ struct strbuf strbuf_from_owned_cstr(char *ptr) {
     };
 }
 
-enum err strbuf_init_copy_str(struct strbuf *s, struct str other) {
+ERRFN strbuf_init_copy_str(struct strbuf *s, struct str other) {
     assert(s);
 
     *s = (struct strbuf){0};
@@ -160,7 +161,7 @@ enum err strbuf_init_copy_str(struct strbuf *s, struct str other) {
     return OK;
 }
 
-enum err strbuf_init_copy_cstr(struct strbuf *s, char const *ptr) {
+ERRFN strbuf_init_copy_cstr(struct strbuf *s, char const *ptr) {
     *s = (struct strbuf){0};
     if (!ptr) return OK;
 
@@ -179,7 +180,7 @@ enum err strbuf_init_copy_cstr(struct strbuf *s, char const *ptr) {
     return OK;
 }
 
-enum err strbuf_reserve(struct strbuf *s, ssize_t additional) {
+ERRFN strbuf_reserve(struct strbuf *s, ssize_t additional) {
     ssize_t const min_cap = 8;
 
     strbuf_assert_valid(s);
@@ -204,7 +205,7 @@ enum err strbuf_reserve(struct strbuf *s, ssize_t additional) {
     return OK;
 }
 
-enum err strbuf_push(struct strbuf *s, char ch) {
+ERRFN strbuf_push(struct strbuf *s, char ch) {
     strbuf_assert_valid(s);
     assert(ch);
 

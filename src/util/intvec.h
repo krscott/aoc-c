@@ -11,8 +11,8 @@ vec_define_struct(intvec, i64);
 // TODO: Semantically, should nums be a pointer?
 i64 intvec_sum(struct intvec nums);
 i64 intvec_product(struct intvec nums);
-enum err intvec_max(i64 *out, struct intvec nums);
-enum err intvec_min(i64 *out, struct intvec nums);
+ERRFN intvec_max(i64 *out, struct intvec nums);
+ERRFN intvec_min(i64 *out, struct intvec nums);
 void intvec_print(struct intvec nums);
 
 #if LOG_DBG

@@ -29,9 +29,9 @@ struct vec;
 void vec__deinit(struct vec *vec, size_t elem_size);
 
 #define vec_reserve(v, additional) vec__reserve(vec__detype(v), additional)
-enum err vec__reserve(struct vec *vec, size_t elem_size, ssize_t additional);
+ERRFN vec__reserve(struct vec *vec, size_t elem_size, ssize_t additional);
 
-#define vec_push(v, elem) (vec_reserve(v, 1) || ((v)->ptr[(v)->len++] = elem, OK))
+#define vec_push(v, elem) err_nodiscard((vec_reserve(v, 1) || ((v)->ptr[(v)->len++] = elem, OK)))
 
 #define vec_clear(v) ((v)->len = 0)
 

@@ -5,7 +5,7 @@
 #include "util/intvec.h"
 #include "util/vec.h"
 
-bool is_symbol(char const c) {
+static bool is_symbol(char const c) {
     if (PART1) {
         return c != '.' && !isdigit(c);
     } else {
@@ -13,7 +13,7 @@ bool is_symbol(char const c) {
     }
 }
 
-i64 get_number(struct strbuf *line, ssize_t const col) {
+static i64 get_number(struct strbuf *line, ssize_t const col) {
     if (col < 0 || col >= line->len || !isdigit(line->ptr[col])) return 0;
 
     ssize_t left = col;
@@ -34,13 +34,13 @@ i64 get_number(struct strbuf *line, ssize_t const col) {
     return n;
 }
 
-enum err push_number(struct intvec *nums, struct strbuf *line, ssize_t col) {
+static ERRFN push_number(struct intvec *nums, struct strbuf *line, ssize_t col) {
     i64 n = get_number(line, col);
     if (n) return vec_push(nums, n);
     return OK;
 }
 
-enum err push_row_adjacent_numbers(struct intvec *nums, struct strbuf *line, ssize_t col) {
+static ERRFN push_row_adjacent_numbers(struct intvec *nums, struct strbuf *line, ssize_t col) {
     enum err e = OK;
     // If a number exists in the center, then there can be only one number
     i64 n = get_number(line, col);
@@ -55,7 +55,7 @@ enum err push_row_adjacent_numbers(struct intvec *nums, struct strbuf *line, ssi
     return e;
 }
 
-enum err get_adjacent_numbers(
+static ERRFN get_adjacent_numbers(
     struct intvec *nums,
     struct linevec *lines,
     ssize_t const row,

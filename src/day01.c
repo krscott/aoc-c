@@ -29,7 +29,7 @@ static i64 get_word_digit(struct str s) {
     return -1;
 }
 
-static enum err add_line_calibration_p2(i64 *cal_total, struct str line) {
+static ERRFN add_line_calibration_p2(i64 *cal_total, struct str line) {
     if (line.len <= 0) return OK;
 
     i64 first = -1;
@@ -62,7 +62,7 @@ static enum err add_line_calibration_p2(i64 *cal_total, struct str line) {
     return OK;
 }
 
-static enum err add_line_calibration_p1(i64 *cal, struct str line) {
+static ERRFN add_line_calibration_p1(i64 *cal, struct str line) {
     if (line.len <= 0) return OK;
 
     i64 first = -1;

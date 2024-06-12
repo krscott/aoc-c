@@ -20,7 +20,7 @@ i64 intvec_product(struct intvec nums) {
     return total;
 }
 
-enum err intvec_min(i64 *out, struct intvec nums) {
+ERRFN intvec_min(i64 *out, struct intvec nums) {
     if (nums.len <= 0) return err_trace(ERR_INPUT);
 
     i64 min = nums.ptr[0];
@@ -34,7 +34,7 @@ enum err intvec_min(i64 *out, struct intvec nums) {
     return OK;
 }
 
-enum err intvec_max(i64 *out, struct intvec nums) {
+ERRFN intvec_max(i64 *out, struct intvec nums) {
     if (nums.len <= 0) return err_trace(ERR_INPUT);
 
     i64 max = nums.ptr[0];

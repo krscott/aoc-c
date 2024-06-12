@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "common.h"
 #include "log.h"
 #include "str.h"
 #include "vec.h"
@@ -17,7 +18,7 @@ void linevec_deinit(struct linevec *lines) {
     vec_deinit(lines);
 }
 
-char linevec_get(struct linevec const lines, ssize_t const row, ssize_t const col) {
+NODISCARD char linevec_get(struct linevec const lines, ssize_t const row, ssize_t const col) {
     assert(row >= 0);
     assert(col >= 0);
     if (row < 0 || row >= lines.len) return '\0';
@@ -26,7 +27,7 @@ char linevec_get(struct linevec const lines, ssize_t const row, ssize_t const co
     return line.ptr[col];
 }
 
-enum err cli_file(FILE **file, int argc, char *argv[]) {
+ERRFN cli_file(FILE **file, int argc, char *argv[]) {
     if (argc != 2) {
         fprintf(stderr, "Usage: %s INPUT_FILE\n", argv[0]);
         return ERR_CLI;
@@ -41,7 +42,7 @@ enum err cli_file(FILE **file, int argc, char *argv[]) {
     return OK;
 }
 
-enum err cli_file_lines(struct linevec *lines, int argc, char *argv[]) {
+ERRFN cli_file_lines(struct linevec *lines, int argc, char *argv[]) {
     *lines = (struct linevec){0};
 
     struct fileiter iter;
@@ -58,7 +59,8 @@ enum err cli_file_lines(struct linevec *lines, int argc, char *argv[]) {
         if (e) goto error;
 
         struct strbuf linebuf;
-        strbuf_init_copy_str(&linebuf, str_trim_whitespace(line));
+        e = strbuf_init_copy_str(&linebuf, str_trim_whitespace(line));
+        if (e) goto error;
 
         e = vec_push(lines, linebuf);
         if (e) goto error;
@@ -69,13 +71,13 @@ error:
     return e;
 }
 
-enum err fileiter_init_cli(struct fileiter *iter, int argc, char *argv[]) {
+ERRFN fileiter_init_cli(struct fileiter *iter, int argc, char *argv[]) {
     assert(iter);
     *iter = (struct fileiter){0};
     return cli_file(&iter->file, argc, argv);
 }
 
-enum err fileiter_line(struct str *s, struct fileiter *iter) {
+ERRFN fileiter_line(struct str *s, struct fileiter *iter) {
     ssize_t line_length = getline(&iter->buffer, &iter->size, iter->file);
     if (errno) {
         log_err("getline failed: %s", strerror(errno));

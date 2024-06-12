@@ -12,7 +12,7 @@ void vec__deinit(struct vec *vec, size_t elem_size) {
     if (vec->ptr) free(vec->ptr);
 }
 
-enum err vec__reserve(struct vec *vec, size_t elem_size, ssize_t additional) {
+ERRFN vec__reserve(struct vec *vec, size_t elem_size, ssize_t additional) {
     ssize_t const min_cap = 8;
 
     assert(additional > 0);

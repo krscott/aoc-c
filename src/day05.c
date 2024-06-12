@@ -23,7 +23,7 @@ struct range {
 };
 vec_define_struct(rangevec, struct range);
 
-static enum err parse_seeds(struct seedvec *seeds, struct fileiter *f) {
+static ERRFN parse_seeds(struct seedvec *seeds, struct fileiter *f) {
     enum err e = OK;
     struct str line;
     e = fileiter_line(&line, f);
@@ -40,7 +40,7 @@ static enum err parse_seeds(struct seedvec *seeds, struct fileiter *f) {
             case ERR_NONE:
                 return OK;
             default:
-                return err_trace(e);
+                return e;
         }
         if (PART1) {
             seed.len = 1;
@@ -51,20 +51,21 @@ static enum err parse_seeds(struct seedvec *seeds, struct fileiter *f) {
                 case ERR_NONE:
                     return err_trace(ERR_INPUT);
                 default:
-                    return err_trace(e);
+                    return e;
             }
         }
-        vec_push(seeds, seed);
+        e = vec_push(seeds, seed);
+        if (e) return e;
     }
 }
 
-static enum err parse_range(struct range *range, struct str line) {
+static ERRFN parse_range(struct range *range, struct str line) {
     return str_take_int(&range->dest, &line, line)    //
            || str_take_int(&range->src, &line, line)  //
            || str_take_int(&range->len, &line, line);
 }
 
-static enum err parse_ranges(struct rangevec *ranges, struct fileiter *f) {
+static ERRFN parse_ranges(struct rangevec *ranges, struct fileiter *f) {
     enum err e = OK;
     struct str line = {0};
 
@@ -80,7 +81,8 @@ static enum err parse_ranges(struct rangevec *ranges, struct fileiter *f) {
         if (e) return e;
         switch (e = parse_range(&range, line)) {
             case OK:
-                vec_push(ranges, range);
+                e = vec_push(ranges, range);
+                if (e) return e;
                 break;
             case ERR_NONE:
                 return OK;
@@ -90,7 +92,7 @@ static enum err parse_ranges(struct rangevec *ranges, struct fileiter *f) {
     }
 }
 
-static void transform_seeds(struct seedvec *seeds, struct rangevec_slice const ranges) {
+static ERRFN transform_seeds(struct seedvec *seeds, struct rangevec_slice const ranges) {
     for (ssize_t i = 0; i < seeds->len; ++i) {
         struct seed seed = seeds->ptr[i];
         for (ssize_t j = 0; j < ranges.len; ++j) {
@@ -119,7 +121,10 @@ static void transform_seeds(struct seedvec *seeds, struct rangevec_slice const r
                     new_seed.start,
                     new_seed.len
                 );
-                vec_push(seeds, new_seed);
+
+                enum err e = vec_push(seeds, new_seed);
+                if (e) return e;
+
                 seeds->ptr[i] = seed = old_seed;
             } else if (range_end > seed.start && range_end < seed_end) {
                 struct seed old_seed = {
@@ -141,7 +146,10 @@ static void transform_seeds(struct seedvec *seeds, struct rangevec_slice const r
                     new_seed.start,
                     new_seed.len
                 );
-                vec_push(seeds, new_seed);
+
+                enum err e = vec_push(seeds, new_seed);
+                if (e) return e;
+
                 seeds->ptr[i] = seed = old_seed;
             }
 
@@ -166,14 +174,15 @@ static void transform_seeds(struct seedvec *seeds, struct rangevec_slice const r
             }
         }
     }
+    return OK;
 }
 
 static inline void seedvec_log_debug(struct seedvec seeds) {
 #if LOG_DBG
     struct intvec seed_flat = {0};
     for (ssize_t i = 0; i < seeds.len; ++i) {
-        vec_push(&seed_flat, seeds.ptr[i].start);
-        vec_push(&seed_flat, seeds.ptr[i].len);
+        (void)vec_push(&seed_flat, seeds.ptr[i].start);
+        (void)vec_push(&seed_flat, seeds.ptr[i].len);
     }
     intvec_log_dbg(seed_flat);
     vec_deinit(&seed_flat);
@@ -182,7 +191,7 @@ static inline void seedvec_log_debug(struct seedvec seeds) {
 #endif
 }
 
-enum err get_min_seed(i64 *min, struct seedvec *seeds) {
+static ERRFN get_min_seed(i64 *min, struct seedvec *seeds) {
     ssize_t len = seeds->len;
     struct seed *buf = seeds->ptr;
     if (len == 0) return err_trace(ERR_INPUT);
@@ -215,7 +224,9 @@ int main(int argc, char *argv[]) {
         vec_clear(&ranges);
         e = parse_ranges(&ranges, &f);
         if (e > ERR_NONE) goto error;
-        transform_seeds(&seeds, vec_slice(rangevec, &ranges));
+
+        enum err e2 = transform_seeds(&seeds, vec_slice(rangevec, &ranges));
+        if (e2) goto error;
 
         seedvec_log_debug(seeds);
     }

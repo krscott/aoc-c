@@ -5,9 +5,12 @@
 
 #define countof(a) (sizeof(a) / sizeof(*(a)))
 
-typedef int64_t i64;
-i64 max_i32(i64 a, i64 b);
+#define NODISCARD __attribute__((warn_unused_result))
 
-char const *my_basename(char const *path);
+typedef int64_t i64;
+
+NODISCARD i64 max_i32(i64 a, i64 b);
+
+NODISCARD char const *my_basename(char const *path);
 
 #endif  // UTIL_H

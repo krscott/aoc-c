@@ -13,7 +13,7 @@ struct linedata {
     i64 b;
 };
 
-static enum err parse_round(struct linedata *data, struct str round) {
+static ERRFN parse_round(struct linedata *data, struct str round) {
     assert(data);
     enum err e = OK;
     while (round.len > 0) {
@@ -42,7 +42,7 @@ error:
     return e;
 }
 
-static enum err linedata_get(struct linedata *data, struct str line) {
+static ERRFN linedata_get(struct linedata *data, struct str line) {
     assert(data);
 
     enum err e = OK;
@@ -65,7 +65,7 @@ error:
     return e;
 }
 
-static enum err parse_line(i64 *total, struct str line) {
+static ERRFN parse_line(i64 *total, struct str line) {
     struct linedata data = {0};
     enum err e = linedata_get(&data, line);
     if (e) goto error;

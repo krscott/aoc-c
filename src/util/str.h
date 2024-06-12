@@ -14,7 +14,7 @@ struct str {
 };
 
 /// Get substring from start to end (exclusive)
-struct str str_substr(struct str s, ssize_t start, ssize_t end);
+NODISCARD struct str str_substr(struct str s, ssize_t start, ssize_t end);
 /// Split a str by delim. Return next split section.
 struct str str_split(struct str *tail, struct str input, char const *delim);
 /// Split a str by any char in delims. Returns matched char, or '\0' if end of string
@@ -22,9 +22,9 @@ char str_split_any(struct str *head, struct str *tail, struct str input, char co
 /// Remove first char from intput, put result in tail
 char str_shift(struct str *tail, struct str input);
 /// Parse an integer, put remaining string in tail. If no number, returns ERR_NONE.
-enum err str_take_int(i64 *n, struct str *tail, struct str input);
+ERRFN str_take_int(i64 *n, struct str *tail, struct str input);
 /// Trim whitespace
-struct str str_trim_whitespace(struct str s);
+NODISCARD struct str str_trim_whitespace(struct str s);
 /// Print str to stdout
 void str_println(struct str s);
 /// Print str to debug log
@@ -54,17 +54,17 @@ inline void strbuf_assert_valid(struct strbuf *s) {
 
 void strbuf_deinit(struct strbuf *s);
 /// Move an owned null-terminated string into cstrbuf
-struct strbuf strbuf_from_owned_cstr(char *ptr);
+NODISCARD struct strbuf strbuf_from_owned_cstr(char *ptr);
 /// Create a cstrbuf by copying a cstr
-enum err strbuf_init_copy_cstr(struct strbuf *s, char const *ptr);
+ERRFN strbuf_init_copy_cstr(struct strbuf *s, char const *ptr);
 /// Create a cstrbuf by copying a str
-enum err strbuf_init_copy_str(struct strbuf *s, struct str other);
+ERRFN strbuf_init_copy_str(struct strbuf *s, struct str other);
 /// Reserve additional bytes beyond length
-enum err strbuf_reserve(struct strbuf *s, ssize_t additional);
+ERRFN strbuf_reserve(struct strbuf *s, ssize_t additional);
 /// Append a character to the end of the buffer and move the null terminator
-enum err strbuf_push(struct strbuf *s, char ch);
+ERRFN strbuf_push(struct strbuf *s, char ch);
 /// Get a str view
-inline struct str cstrbuf_to_str(struct strbuf s) {
+NODISCARD inline struct str strbuf_to_str(struct strbuf s) {
     return (struct str){
         .ptr = s.ptr,
         .len = s.len,

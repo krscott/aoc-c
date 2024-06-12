@@ -5,7 +5,7 @@
 #include "util/str.h"
 #include "util/vec.h"
 
-enum err get_card_wins(i64 *wins, struct str line) {
+static ERRFN get_card_wins(i64 *wins, struct str line) {
     assert(wins);
     *wins = 0;
 
@@ -67,8 +67,14 @@ int main(int argc, char *argv[]) {
         i64 wins;
         e = get_card_wins(&wins, line);
         if (e) goto error;
-        vec_push(&card_wins, wins);
-        if (!PART1) vec_push(&card_count, 1);
+
+        e = vec_push(&card_wins, wins);
+        if (e) goto error;
+
+        if (!PART1) {
+            e = vec_push(&card_count, 1);
+            if (e) goto error;
+        }
     }
 
     i64 total = 0;

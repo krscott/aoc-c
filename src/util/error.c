@@ -5,7 +5,11 @@
 #include <stdio.h>
 #include <string.h>
 
-char const* err_string(enum err e) {
+#include "common.h"
+
+ERRFN err_nodiscard(enum err e) { return e; }
+
+NODISCARD char const* err_string(enum err e) {
     switch (e) {
         case OK:
             return "OK";
@@ -26,7 +30,7 @@ char const* err_string(enum err e) {
     return "Unknown Error";
 }
 
-enum err err_trace_info(enum err e, char const* filename, int lineno) {
+ERRFN err_trace_info(enum err e, char const* filename, int lineno) {
     if (e) fprintf(stderr, "ERROR %s:%d %s\n", filename, lineno, err_string(e));
     return e;
 }
