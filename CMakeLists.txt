@@ -99,3 +99,8 @@ do_test(day05a 05-example.txt 35)
 do_test(day05a 05.txt 525792406)
 do_test(day05b 05-example.txt 46)
 do_test(day05b 05.txt 79004094)
+
+do_test(day06a 06-example.txt 288)
+do_test(day06a 06.txt 227850)
+do_test(day06b 06-example.txt 71503)
+do_test(day06b 06.txt 42948149)

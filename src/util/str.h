@@ -70,5 +70,9 @@ NODISCARD inline struct str strbuf_to_str(struct strbuf s) {
         .len = s.len,
     };
 }
+/// Replace `find` string with `replace` string. Returns `ERR_NONE` if no match.
+ERRFN strbuf_replace(struct strbuf *s, char const *find, char const *replace);
+/// Replace all instances of `find` string with `replace` string.
+ERRFN strbuf_replace_all(struct strbuf *s, char const *find, char const *replace);
 
 #endif  // STR_H

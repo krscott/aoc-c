@@ -3,9 +3,11 @@
 
 #include "common.h"  // IWYU pragma: export
 
+/// Error enum
+/// OK = 0, ERR_NONE = 1, all others > 1
 enum err {
     OK = 0,
-    ERR_NONE,
+    ERR_NONE = 1,
     ERR_CLI,
     ERR_FS,
     ERR_INPUT,

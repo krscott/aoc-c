@@ -9,6 +9,7 @@
 
 #include "common.h"
 #include "error.h"
+#include "log.h"
 
 extern inline void strbuf_assert_valid(struct strbuf *s);
 
@@ -217,6 +218,50 @@ ERRFN strbuf_push(struct strbuf *s, char ch) {
     s->ptr[s->len] = '\0';
 
     return OK;
+}
+
+ERRFN strbuf_replace(struct strbuf *s, char const *find, char const *replace) {
+    assert(s);
+    assert(find);
+    assert(replace);
+    ssize_t find_len = strlen(find);
+    ssize_t replace_len = strlen(replace);
+    ssize_t diff_len = replace_len - find_len;
+
+    char *match = strstr(s->ptr, find);
+    if (!match) return ERR_NONE;
+
+    ssize_t match_idx = match - s->ptr;
+
+    if (diff_len > 0) {
+        enum err e = strbuf_reserve(s, diff_len);
+        if (e) return e;
+
+        for (ssize_t i = s->len; i >= match_idx + find_len; --i) {
+            s->ptr[i] = s->ptr[i - diff_len];
+        }
+    } else if (diff_len < 0) {
+        for (ssize_t i = match_idx + replace_len; i < s->len; ++i) {
+            s->ptr[i] = s->ptr[i - diff_len];
+        }
+    }
+
+    for (ssize_t i = 0; i < replace_len; ++i) {
+        s->ptr[match_idx + i] = replace[i];
+    }
+
+    s->len += diff_len;
+
+    return OK;
+}
+
+ERRFN strbuf_replace_all(struct strbuf *s, char const *find, char const *replace) {
+    enum err e;
+    for (;;) {
+        e = strbuf_replace(s, find, replace);
+        if (e == ERR_NONE) return OK;
+        if (e) return e;
+    }
 }
 
 void strbuf_deinit(struct strbuf *s) {
