@@ -23,7 +23,7 @@ i64 intspan_min(struct intspan nums, i64 default_);
 void intspan_print(struct intspan nums);
 
 #if LOG_DBG
-#define intvec_log_dbg(nums) intvec__log_dbg(nums, my_basename(__FILE__), __LINE__)
+#define intvec_log_dbg(nums) intvec__log_dbg(nums, FILE_NAME, __LINE__)
 void intvec__log_dbg(struct intvec nums, char const *filename, size_t lineno);
 #else
 #define intvec_log_dbg(nums)

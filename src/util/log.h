@@ -10,7 +10,7 @@
 #endif
 
 #define log(type, fmt, ...) \
-    fprintf(stderr, type " %s:%d " fmt "\n", my_basename(__FILE__), __LINE__, ##__VA_ARGS__)
+    fprintf(stderr, type " %s:%d " fmt "\n", FILE_NAME, __LINE__, ##__VA_ARGS__)
 
 #define log_err(...) log("ERROR", __VA_ARGS__)
 

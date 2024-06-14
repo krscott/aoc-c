@@ -36,6 +36,14 @@ add_compile_options(
     -Wconversion
 )
 
+function(define_file_name_macro target)
+    get_target_property(sources ${target} SOURCES)
+    foreach(source ${sources})
+        get_filename_component(source_basename ${source} NAME)
+        set_source_files_properties(${source} PROPERTIES COMPILE_DEFINITIONS "FILE_NAME=\"${source_basename}\"")
+    endforeach()
+endfunction()
+
 function(add_day day part utils)
     get_filename_component(basename ${day} NAME_WE)
     set(target ${basename}${part})
@@ -47,7 +55,9 @@ function(add_day day part utils)
     else()
         message(SEND_ERROR "Invalid part '${part}', expected 'a' or 'b'")
     endif()
+    define_file_name_macro(${target})
 endfunction()
+
 
 file(GLOB days src/day*.c) 
 file(GLOB utils src/util/*.c)
@@ -65,6 +75,7 @@ file(GLOB util_tests src/util/*_test.c)
 foreach(util_test ${util_tests})
     get_filename_component(target ${util_test} NAME_WE)
     add_executable(${target} ${util_test} ${utils})
+    define_file_name_macro(${target})
     add_test(NAME ${target} COMMAND ${target})
 endforeach()
 

@@ -1,4 +1,6 @@
 #include "str.h"
+
+#include "log.h"
 #include "string.h"
 
 static void test_strbuf_from_owned_cstr(void) {
@@ -86,10 +88,12 @@ static void test_strbuf_replace_all(void) {
 }
 
 int main(void) {
+    log_dbg("Running string tests");
     test_strbuf_from_owned_cstr();
     test_strbuf_init_copy_str();
     test_strbuf_push();
     test_strbuf_replace();
     test_strbuf_replace2();
     test_strbuf_replace_all();
+    log_dbg("All tests pass");
 }

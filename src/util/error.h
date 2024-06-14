@@ -19,7 +19,7 @@ enum err {
 
 NODISCARD char const* err_string(enum err e);
 
-#define err_trace(e) err_trace_info(e, my_basename(__FILE__), __LINE__)
+#define err_trace(e) err_trace_info(e, FILE_NAME, __LINE__)
 ERRFN err_trace_info(enum err e, char const* filename, int lineno);
 
 /// Wrapper function for macros to force using error
