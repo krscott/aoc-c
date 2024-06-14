@@ -38,7 +38,6 @@ add_compile_options(
 function(add_day day part utils)
     get_filename_component(basename ${day} NAME_WE)
     set(target ${basename}${part})
-    message(${utils})
     add_executable(${target} ${day} ${utils})
     if(${part} MATCHES "a")
         target_compile_definitions(${target} PRIVATE PART1=1)
@@ -51,6 +50,7 @@ endfunction()
 
 file(GLOB days src/day*.c) 
 file(GLOB utils src/util/*.c)
+list(FILTER utils EXCLUDE REGEX "/test_[^.]*\.c")
 foreach(day ${days})
     add_day(${day} a "${utils}")
     add_day(${day} b "${utils}")
@@ -59,6 +59,13 @@ endforeach()
 # Tests
 
 include(CTest)
+
+file(GLOB util_tests src/util/test_*.c)
+foreach(util_test ${util_tests})
+    get_filename_component(target ${util_test} NAME_WE)
+    add_executable(${target} ${util_test} ${utils})
+    add_test(NAME ${target} COMMAND ${target})
+endforeach()
 
 set(inputs_dir ${PROJECT_SOURCE_DIR}/inputs)
 
