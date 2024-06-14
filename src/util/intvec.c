@@ -1,11 +1,10 @@
 #include "intvec.h"
 
-#include <assert.h>
 #include <stdio.h>
 
 #include "error.h"
 
-i64 intvec_sum(struct intvec const nums) {
+i64 intspan_sum(struct intspan const nums) {
     i64 total = 0;
     for (size_t i = 0; i < nums.len; ++i) {
         total += nums.ptr[i];
@@ -13,7 +12,7 @@ i64 intvec_sum(struct intvec const nums) {
     return total;
 }
 
-i64 intvec_product(struct intvec const nums) {
+i64 intspan_product(struct intspan const nums) {
     i64 total = 1;
     for (size_t i = 0; i < nums.len; ++i) {
         total *= nums.ptr[i];
@@ -21,24 +20,8 @@ i64 intvec_product(struct intvec const nums) {
     return total;
 }
 
-ERRFN intvec_min(i64 *const out, struct intvec const nums) {
-    assert(out);
-    if (nums.len <= 0) return err_trace(ERR_INPUT);
-
-    i64 min = nums.ptr[0];
-    for (size_t i = 1; i < nums.len; ++i) {
-        if (min > nums.ptr[i]) {
-            min = nums.ptr[i];
-        }
-    }
-
-    *out = min;
-    return OK;
-}
-
-ERRFN intvec_max(i64 *const out, struct intvec const nums) {
-    assert(out);
-    if (nums.len <= 0) return err_trace(ERR_INPUT);
+i64 intspan_max(struct intspan nums, i64 default_) {
+    if (nums.len == 0) return default_;
 
     i64 max = nums.ptr[0];
     for (size_t i = 1; i < nums.len; ++i) {
@@ -47,11 +30,23 @@ ERRFN intvec_max(i64 *const out, struct intvec const nums) {
         }
     }
 
-    *out = max;
-    return OK;
+    return max;
 }
 
-void intvec_print(struct intvec const nums) {
+i64 intspan_min(struct intspan nums, i64 def) {
+    if (nums.len == 0) return def;
+
+    i64 min = nums.ptr[0];
+    for (size_t i = 1; i < nums.len; ++i) {
+        if (min > nums.ptr[i]) {
+            min = nums.ptr[i];
+        }
+    }
+
+    return min;
+}
+
+void intspan_print(struct intspan const nums) {
     printf("[");
     for (size_t i = 0; i < nums.len; ++i) {
         if (i > 0) printf(", ");

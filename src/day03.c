@@ -112,10 +112,10 @@ int main(int argc, char *argv[]) {
                 e = get_adjacent_numbers(&nums, &lines, row, col);
                 if (e) goto error;
                 if (PART1) {
-                    total += intvec_sum(nums);
+                    total += intvec_sum(&nums);
                 } else {
                     if (nums.len == 2) {
-                        total += intvec_product(nums);
+                        total += intvec_product(&nums);
                     }
                 }
             }

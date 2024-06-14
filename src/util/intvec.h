@@ -7,13 +7,20 @@
 #include "vec.h"
 
 vec_define_struct(intvec, i64);
+span_define_struct(intspan, i64);
 
-// TODO: Semantically, should nums be a pointer?
-i64 intvec_sum(struct intvec nums);
-i64 intvec_product(struct intvec nums);
-ERRFN intvec_max(i64 *out, struct intvec nums);
-ERRFN intvec_min(i64 *out, struct intvec nums);
-void intvec_print(struct intvec nums);
+#define intvec_to_span(v) vec_to_span(intvec, intspan, (v))
+
+#define intvec_sum(v) intspan_sum(intvec_to_span(v))
+i64 intspan_sum(struct intspan nums);
+#define intvec_product(v) intspan_product(intvec_to_span(v))
+i64 intspan_product(struct intspan nums);
+#define intvec_max(v) intspan_max(intvec_to_span(v))
+i64 intspan_max(struct intspan nums, i64 default_);
+#define intvec_min(v) intspan_min(intvec_to_span(v))
+i64 intspan_min(struct intspan nums, i64 default_);
+#define intvec_print(v) intspan_print(intvec_to_span(v))
+void intspan_print(struct intspan nums);
 
 #if LOG_DBG
 #define intvec_log_dbg(nums) intvec__log_dbg(nums, my_basename(__FILE__), __LINE__)
