@@ -13,6 +13,7 @@ struct str {
     size_t len;
 };
 
+NODISCARD struct str str_from_cstr(char *cstr);
 /// Get substring from start to end (exclusive)
 NODISCARD struct str str_substr(struct str s, size_t start, size_t end);
 /// Split a str by delim. Return next split section.

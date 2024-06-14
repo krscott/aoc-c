@@ -14,6 +14,14 @@
 extern inline void strbuf_assert_valid(struct strbuf *s);
 extern inline NODISCARD struct str strbuf_to_str(struct strbuf s);
 
+NODISCARD struct str str_from_cstr(char *const cstr) {
+    if (!cstr) return (struct str){0};
+    return (struct str){
+        .ptr = cstr,
+        .len = strlen(cstr),
+    };
+}
+
 NODISCARD struct str str_substr(struct str const s, size_t const start, size_t const end) {
     assert(s.ptr);
     assert(end > start);
@@ -242,32 +250,39 @@ ERRFN strbuf_push(struct strbuf *const s, char const ch) {
     return OK;
 }
 
-ERRFN strbuf_replace(struct strbuf *const s, char const *const find, char const *const replace) {
+static ERRFN replace_after(
+    struct strbuf *const s,
+    char const *const find,
+    char const *const replace,
+    size_t *const index
+) {
     assert(s);
     assert(find);
     assert(replace);
+    assert(index);
+    if (*index >= s->len) return ERR_NONE;
+
     size_t const find_len = strlen(find);
     size_t const replace_len = strlen(replace);
 
-    char const *const match = strstr(s->ptr, find);
+    char const *const match = strstr(&s->ptr[*index], find);
     if (!match) return ERR_NONE;
 
     size_t const match_idx = (size_t)(match - s->ptr);
+    *index = match_idx + replace_len;
 
     if (replace_len > find_len) {
         size_t const diff_len = replace_len - find_len;
         enum err const e = strbuf_reserve(s, diff_len);
         if (e) return e;
-
-        for (size_t i = s->len; i >= match_idx + find_len; --i) {
+        s->len += diff_len;
+        for (size_t i = s->len; i >= match_idx + diff_len; --i) {
             s->ptr[i] = s->ptr[i - diff_len];
         }
-
-        s->len += diff_len;
     } else if (replace_len < find_len) {
         size_t const diff_len = find_len - replace_len;
-        assert(match_idx >= replace_len);
-        for (size_t i = match_idx - replace_len; i < s->len; ++i) {
+        assert(diff_len <= s->len);
+        for (size_t i = match_idx + replace_len; i <= s->len - diff_len; ++i) {
             s->ptr[i] = s->ptr[i + diff_len];
         }
         s->len -= diff_len;
@@ -277,13 +292,20 @@ ERRFN strbuf_replace(struct strbuf *const s, char const *const find, char const 
         s->ptr[match_idx + i] = replace[i];
     }
 
+    assert(strlen(s->ptr) == s->len);
     return OK;
+}
+
+ERRFN strbuf_replace(struct strbuf *const s, char const *const find, char const *const replace) {
+    size_t index = 0;
+    return replace_after(s, find, replace, &index);
 }
 
 ERRFN strbuf_replace_all(struct strbuf *s, char const *find, char const *replace) {
     enum err e;
+    size_t index = 0;
     for (;;) {
-        e = strbuf_replace(s, find, replace);
+        e = replace_after(s, find, replace, &index);
         if (e == ERR_NONE) return OK;
         if (e) return e;
     }
