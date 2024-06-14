@@ -14,7 +14,7 @@ struct fileiter {
 
 vec_define_struct(linevec, struct strbuf);
 void linevec_deinit(struct linevec *lines);
-NODISCARD char linevec_get(struct linevec lines, ssize_t row, ssize_t col);
+NODISCARD char linevec_get(struct linevec lines, size_t row, size_t col);
 
 ERRFN cli_file(FILE **file, int argc, char *argv[]);
 ERRFN cli_file_lines(struct linevec *lines, int argc, char *argv[]);

@@ -18,26 +18,27 @@ static char const *digits[] = {
     "nine",
 };
 
-static i64 get_word_digit(struct str s) {
+static i64 get_word_digit(struct str const s) {
     assert(s.len > 0);
-    for (ssize_t i = 0; i < (ssize_t)countof(digits); ++i) {
-        for (ssize_t j = 0;; ++j) {
-            if (digits[i][j] == 0) return i;
+    for (size_t i = 0; i < countof(digits); ++i) {
+        for (size_t j = 0;; ++j) {
+            if (digits[i][j] == 0) return (i64)i;
             if (j == s.len || digits[i][j] != s.ptr[j]) break;
         }
     }
     return -1;
 }
 
-static ERRFN add_line_calibration_p2(i64 *cal_total, struct str line) {
+static ERRFN add_line_calibration_p2(i64 *const cal_total, struct str const line) {
+    assert(cal_total);
     if (line.len <= 0) return OK;
 
     i64 first = -1;
     i64 last = -1;
 
-    for (ssize_t i = 0; i < line.len; ++i) {
+    for (size_t i = 0; i < line.len; ++i) {
         i64 d = -1;
-        char c = line.ptr[i];
+        char const c = line.ptr[i];
         if (c >= '0' && c <= '9') {
             d = c - '0';
         } else {
@@ -54,7 +55,7 @@ static ERRFN add_line_calibration_p2(i64 *cal_total, struct str line) {
         return ERR_INPUT;
     }
 
-    i64 line_cal = first * 10 + last;
+    i64 const line_cal = first * 10 + last;
     log_dbg("%ld", line_cal);
 
     *cal_total += line_cal;
@@ -62,14 +63,15 @@ static ERRFN add_line_calibration_p2(i64 *cal_total, struct str line) {
     return OK;
 }
 
-static ERRFN add_line_calibration_p1(i64 *cal, struct str line) {
+static ERRFN add_line_calibration_p1(i64 *const cal, struct str const line) {
+    assert(cal);
     if (line.len <= 0) return OK;
 
     i64 first = -1;
     i64 last = -1;
 
-    for (ssize_t i = 0; i < line.len; ++i) {
-        char c = line.ptr[i];
+    for (size_t i = 0; i < line.len; ++i) {
+        char const c = line.ptr[i];
         if (c >= '0' && c <= '9') {
             i64 const x = c - '0';
             if (first == -1) first = x;
@@ -112,5 +114,5 @@ int main(int argc, char *argv[]) {
 
 error:
     fileiter_deinit(&f);
-    return e;
+    return (int)e;
 }

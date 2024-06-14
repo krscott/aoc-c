@@ -14,10 +14,10 @@
 extern inline void strbuf_assert_valid(struct strbuf *s);
 extern inline NODISCARD struct str strbuf_to_str(struct strbuf s);
 
-NODISCARD struct str str_substr(struct str s, ssize_t start, ssize_t end) {
+NODISCARD struct str str_substr(struct str const s, size_t const start, size_t const end) {
     assert(s.ptr);
     assert(end > start);
-    assert(start >= 0 && start < s.len);
+    assert(start < s.len);
     assert(end > 0 && end <= s.len);
     return (struct str){
         .ptr = s.ptr + start,
@@ -25,7 +25,8 @@ NODISCARD struct str str_substr(struct str s, ssize_t start, ssize_t end) {
     };
 }
 
-struct str str_split(struct str *tail, struct str input, char const *delim) {
+struct str str_split(struct str *const tail, struct str const input, char const *delim) {
+    // tail may be null
     assert(delim);
 
     if (input.ptr == NULL) {
@@ -33,14 +34,16 @@ struct str str_split(struct str *tail, struct str input, char const *delim) {
         return (struct str){0};
     }
 
-    ssize_t delim_len = strlen(delim);
+    size_t const delim_len = strlen(delim);
     assert(delim_len > 0);
 
-    for (ssize_t i = 0; i < input.len - delim_len + 1; ++i) {
+    for (size_t i = 0; i < input.len - delim_len + 1; ++i) {
         if (strncmp(&input.ptr[i], delim, delim_len) == 0) {
+            size_t const i_delim_offset = i + delim_len;
+            assert(i_delim_offset <= input.len);
             *tail = (struct str){
-                .ptr = &input.ptr[i + delim_len],
-                .len = input.len - i - delim_len,
+                .ptr = &input.ptr[i_delim_offset],
+                .len = input.len - i_delim_offset,
             };
             return (struct str){
                 .ptr = input.ptr,
@@ -53,7 +56,13 @@ struct str str_split(struct str *tail, struct str input, char const *delim) {
     return input;
 }
 
-char str_split_any(struct str *head, struct str *tail, struct str input, char const *delims) {
+char str_split_any(
+    struct str *const head,
+    struct str *const tail,
+    struct str const input,
+    char const *const delims
+) {
+    // head and tail may be null
     assert(delims);
 
     if (input.ptr == NULL) {
@@ -62,8 +71,8 @@ char str_split_any(struct str *head, struct str *tail, struct str input, char co
         return '\0';
     }
 
-    for (ssize_t i = 0; i < input.len; ++i) {
-        char *match = strchr(delims, input.ptr[i]);
+    for (size_t i = 0; i < input.len; ++i) {
+        char const *const match = strchr(delims, input.ptr[i]);
         if (match) {
             if (head) {
                 head->ptr = input.ptr;
@@ -82,25 +91,25 @@ char str_split_any(struct str *head, struct str *tail, struct str input, char co
     return '\0';
 }
 
-char str_shift(struct str *tail, struct str input) {
-    assert(input.len >= 0);
-
-    if (input.len <= 0) {
+char str_shift(struct str *const tail, struct str const input) {
+    // tail may be null
+    if (input.len == 0) {
         if (tail) {
             tail->ptr = NULL;
             tail->len = 0;
         }
         return '\0';
+    } else {
+        if (tail) {
+            tail->ptr = input.ptr + 1;
+            tail->len = input.len - 1;
+        }
+        return input.ptr[0];
     }
-
-    if (tail) {
-        tail->ptr = input.ptr + 1;
-        tail->len = input.len - 1;
-    }
-    return input.ptr[0];
 }
 
-ERRFN str_take_int(i64 *n, struct str *tail, struct str input) {
+ERRFN str_take_int(i64 *const n, struct str *const tail, struct str const input) {
+    // tail may be null
     assert(n);
 
     if (input.len == 0) return ERR_NONE;
@@ -115,14 +124,18 @@ ERRFN str_take_int(i64 *n, struct str *tail, struct str input) {
     if (errno) return err_trace(ERR_ERRNO);
 
     if (tail) {
+        ssize_t const n_str_len = end - input.ptr;
+        assert(0 < n_str_len && (size_t)n_str_len <= input.len);
         tail->ptr = end;
-        tail->len = input.len - (end - input.ptr);
+        tail->len = input.len - (size_t)n_str_len;
     }
     return OK;
 }
 
 NODISCARD struct str str_trim_whitespace(struct str s) {
-    if (s.len <= 0) return s;
+    if (s.len == 0) return s;
+
+    assert(s.ptr);
     while (s.len > 0 && isspace(s.ptr[s.len - 1])) {
         --s.len;
     }
@@ -133,10 +146,10 @@ NODISCARD struct str str_trim_whitespace(struct str s) {
     return s;
 }
 
-NODISCARD struct strbuf strbuf_from_owned_cstr(char *ptr) {
+NODISCARD struct strbuf strbuf_from_owned_cstr(char *const ptr) {
     if (!ptr) return (struct strbuf){0};
 
-    ssize_t len = strlen(ptr);
+    size_t const len = strlen(ptr);
     return (struct strbuf){
         .ptr = ptr,
         .len = len,
@@ -144,13 +157,13 @@ NODISCARD struct strbuf strbuf_from_owned_cstr(char *ptr) {
     };
 }
 
-ERRFN strbuf_init_copy_str(struct strbuf *s, struct str other) {
+ERRFN strbuf_init_copy_str(struct strbuf *const s, struct str const other) {
     assert(s);
 
     *s = (struct strbuf){0};
     if (other.len == 0) return OK;
 
-    ssize_t const cap = other.len + 1;
+    size_t const cap = other.len + 1;
 
     s->ptr = malloc(cap * sizeof(char));
     if (!s->ptr) return err_trace(ERR_MEM);
@@ -163,17 +176,25 @@ ERRFN strbuf_init_copy_str(struct strbuf *s, struct str other) {
     return OK;
 }
 
-ERRFN strbuf_init_copy_cstr(struct strbuf *s, char const *ptr) {
-    *s = (struct strbuf){0};
-    if (!ptr) return OK;
+ERRFN strbuf_init_copy_cstr(struct strbuf *const s, char const *const ptr) {
+    if (!ptr) {
+        *s = (struct strbuf){0};
+        return OK;
+    }
 
-    ssize_t const len = strlen(ptr);
-    if (len == 0) return OK;
+    size_t const len = strlen(ptr);
+    if (len == 0) {
+        *s = (struct strbuf){0};
+        return OK;
+    }
 
-    ssize_t const cap = len + 1;
+    size_t const cap = len + 1;
 
     s->ptr = malloc(cap * sizeof(char));
-    if (!s->ptr) return err_trace(ERR_MEM);
+    if (!s->ptr) {
+        *s = (struct strbuf){0};
+        return err_trace(ERR_MEM);
+    }
 
     strcpy(s->ptr, ptr);
     s->len = len;
@@ -182,20 +203,20 @@ ERRFN strbuf_init_copy_cstr(struct strbuf *s, char const *ptr) {
     return OK;
 }
 
-ERRFN strbuf_reserve(struct strbuf *s, ssize_t additional) {
-    ssize_t const min_cap = 8;
-
+ERRFN strbuf_reserve(struct strbuf *const s, size_t const additional) {
     strbuf_assert_valid(s);
-    assert(additional > 0);
-    ssize_t total = s->len + 1 + additional;
+    if (additional == 0) return OK;
+
+    size_t const min_cap = 8;
+    size_t total = s->len + 1 + additional;
 
     if (total > s->cap) {
-        ssize_t new_cap = (s->cap >= min_cap) ? s->cap * 2 : min_cap;
+        size_t new_cap = (s->cap >= min_cap) ? s->cap * 2 : min_cap;
         while (total > new_cap) {
             new_cap *= 2;
         }
 
-        char *new_ptr = realloc(s->ptr, new_cap);
+        char *const new_ptr = realloc(s->ptr, new_cap);
         if (!new_ptr) return ERR_MEM;
 
         s->ptr = new_ptr;
@@ -207,11 +228,11 @@ ERRFN strbuf_reserve(struct strbuf *s, ssize_t additional) {
     return OK;
 }
 
-ERRFN strbuf_push(struct strbuf *s, char ch) {
+ERRFN strbuf_push(struct strbuf *const s, char const ch) {
     strbuf_assert_valid(s);
     assert(ch);
 
-    enum err e = strbuf_reserve(s, 1);
+    enum err const e = strbuf_reserve(s, 1);
     if (e) return e;
 
     s->ptr[s->len] = ch;
@@ -221,37 +242,40 @@ ERRFN strbuf_push(struct strbuf *s, char ch) {
     return OK;
 }
 
-ERRFN strbuf_replace(struct strbuf *s, char const *find, char const *replace) {
+ERRFN strbuf_replace(struct strbuf *const s, char const *const find, char const *const replace) {
     assert(s);
     assert(find);
     assert(replace);
-    ssize_t find_len = strlen(find);
-    ssize_t replace_len = strlen(replace);
-    ssize_t diff_len = replace_len - find_len;
+    size_t const find_len = strlen(find);
+    size_t const replace_len = strlen(replace);
 
-    char *match = strstr(s->ptr, find);
+    char const *const match = strstr(s->ptr, find);
     if (!match) return ERR_NONE;
 
-    ssize_t match_idx = match - s->ptr;
+    size_t const match_idx = (size_t)(match - s->ptr);
 
-    if (diff_len > 0) {
-        enum err e = strbuf_reserve(s, diff_len);
+    if (replace_len > find_len) {
+        size_t const diff_len = replace_len - find_len;
+        enum err const e = strbuf_reserve(s, diff_len);
         if (e) return e;
 
-        for (ssize_t i = s->len; i >= match_idx + find_len; --i) {
+        for (size_t i = s->len; i >= match_idx + find_len; --i) {
             s->ptr[i] = s->ptr[i - diff_len];
         }
-    } else if (diff_len < 0) {
-        for (ssize_t i = match_idx + replace_len; i < s->len; ++i) {
-            s->ptr[i] = s->ptr[i - diff_len];
+
+        s->len += diff_len;
+    } else if (replace_len < find_len) {
+        size_t const diff_len = find_len - replace_len;
+        assert(match_idx >= replace_len);
+        for (size_t i = match_idx - replace_len; i < s->len; ++i) {
+            s->ptr[i] = s->ptr[i + diff_len];
         }
+        s->len -= diff_len;
     }
 
-    for (ssize_t i = 0; i < replace_len; ++i) {
+    for (size_t i = 0; i < replace_len; ++i) {
         s->ptr[match_idx + i] = replace[i];
     }
-
-    s->len += diff_len;
 
     return OK;
 }

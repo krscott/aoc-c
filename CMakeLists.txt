@@ -33,6 +33,7 @@ add_compile_options(
     -Wwrite-strings
     -Wpointer-to-int-cast
     -Wint-to-pointer-cast
+    -Wconversion
 )
 
 function(add_day day part utils)

@@ -13,7 +13,7 @@ struct linedata {
     i64 b;
 };
 
-static ERRFN parse_round(struct linedata *data, struct str round) {
+static ERRFN parse_round(struct linedata *const data, struct str round) {
     assert(data);
     enum err e = OK;
     while (round.len > 0) {
@@ -42,9 +42,8 @@ error:
     return e;
 }
 
-static ERRFN linedata_get(struct linedata *data, struct str line) {
+static ERRFN linedata_get(struct linedata *const data, struct str line) {
     assert(data);
-
     enum err e = OK;
 
     // Game
@@ -56,7 +55,7 @@ static ERRFN linedata_get(struct linedata *data, struct str line) {
     str_split(&line, line, ":");
 
     while (line.len > 0) {
-        struct str round = str_split(&line, line, ";");
+        struct str const round = str_split(&line, line, ";");
         e = parse_round(data, round);
         if (e) goto error;
     }
@@ -65,7 +64,8 @@ error:
     return e;
 }
 
-static ERRFN parse_line(i64 *total, struct str line) {
+static ERRFN parse_line(i64 *const total, struct str const line) {
+    assert(total);
     struct linedata data = {0};
     enum err e = linedata_get(&data, line);
     if (e) goto error;
@@ -103,5 +103,5 @@ int main(int argc, char *argv[]) {
 
 error:
     fileiter_deinit(&f);
-    return e;
+    return (int)e;
 }

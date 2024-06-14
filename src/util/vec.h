@@ -12,14 +12,14 @@ struct vec__anyvec;
 #define vec_define_struct(name, T) \
     struct name {                  \
         T *ptr;                    \
-        ssize_t len;               \
-        ssize_t cap;               \
+        size_t len;                \
+        size_t cap;                \
     }
 
 #define span_define_struct(name, T) \
     struct name {                   \
         T *ptr;                     \
-        ssize_t len;                \
+        size_t len;                 \
     }
 
 // Struct type check macro
@@ -34,7 +34,7 @@ struct vec__anyvec;
 void vec__deinit(struct vec__anyvec *vec, size_t elem_size);
 
 #define vec_reserve(name, v, additional) vec__reserve(vec__destructure(name, (v)), additional)
-ERRFN vec__reserve(struct vec__anyvec *vec, size_t elem_size, ssize_t additional);
+ERRFN vec__reserve(struct vec__anyvec *vec, size_t elem_size, size_t additional);
 
 #define vec_push(name, v, elem) \
     err_nodiscard((vec_reserve(name, (v), 1) || ((v)->ptr[(v)->len++] = elem, OK)))

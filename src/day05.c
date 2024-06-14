@@ -8,8 +8,6 @@
 #include "util/intvec.h"
 #endif
 
-static ssize_t const expected_maps = 7;
-
 struct seed {
     i64 start;
     i64 len;
@@ -24,7 +22,9 @@ struct range {
 vec_define_struct(rangevec, struct range);
 span_define_struct(rangespan, struct range);
 
-static ERRFN parse_seeds(struct seedvec *seeds, struct fileiter *f) {
+static ERRFN parse_seeds(struct seedvec *const seeds, struct fileiter *const f) {
+    assert(seeds);
+    assert(f);
     enum err e = OK;
     struct str line;
     e = fileiter_line(&line, f);
@@ -60,13 +60,16 @@ static ERRFN parse_seeds(struct seedvec *seeds, struct fileiter *f) {
     }
 }
 
-static ERRFN parse_range(struct range *range, struct str line) {
+static ERRFN parse_range(struct range *const range, struct str line) {
+    assert(range);
     return str_take_int(&range->dest, &line, line)    //
            || str_take_int(&range->src, &line, line)  //
            || str_take_int(&range->len, &line, line);
 }
 
-static ERRFN parse_ranges(struct rangevec *ranges, struct fileiter *f) {
+static ERRFN parse_ranges(struct rangevec *const ranges, struct fileiter *const f) {
+    assert(ranges);
+    assert(f);
     enum err e = OK;
     struct str line = {0};
 
@@ -93,10 +96,10 @@ static ERRFN parse_ranges(struct rangevec *ranges, struct fileiter *f) {
     }
 }
 
-static ERRFN transform_seeds(struct seedvec *seeds, struct rangespan const ranges) {
-    for (ssize_t i = 0; i < seeds->len; ++i) {
+static ERRFN transform_seeds(struct seedvec *const seeds, struct rangespan const ranges) {
+    for (size_t i = 0; i < seeds->len; ++i) {
         struct seed seed = seeds->ptr[i];
-        for (ssize_t j = 0; j < ranges.len; ++j) {
+        for (size_t j = 0; j < ranges.len; ++j) {
             struct range const range = ranges.ptr[j];
             i64 range_end = range.src + range.len;
             i64 seed_end = seed.start + seed.len;
@@ -123,7 +126,7 @@ static ERRFN transform_seeds(struct seedvec *seeds, struct rangespan const range
                     new_seed.len
                 );
 
-                enum err e = vec_push(seedvec, seeds, new_seed);
+                enum err const e = vec_push(seedvec, seeds, new_seed);
                 if (e) return e;
 
                 seeds->ptr[i] = seed = old_seed;
@@ -148,7 +151,7 @@ static ERRFN transform_seeds(struct seedvec *seeds, struct rangespan const range
                     new_seed.len
                 );
 
-                enum err e = vec_push(seedvec, seeds, new_seed);
+                enum err const e = vec_push(seedvec, seeds, new_seed);
                 if (e) return e;
 
                 seeds->ptr[i] = seed = old_seed;
@@ -178,10 +181,10 @@ static ERRFN transform_seeds(struct seedvec *seeds, struct rangespan const range
     return OK;
 }
 
-static inline void seedvec_log_debug(struct seedvec seeds) {
+static inline void seedvec_log_debug(struct seedvec const seeds) {
 #if LOG_DBG
     struct intvec seed_flat = {0};
-    for (ssize_t i = 0; i < seeds.len; ++i) {
+    for (size_t i = 0; i < seeds.len; ++i) {
         (void)vec_push(intvec, &seed_flat, seeds.ptr[i].start);
         (void)vec_push(intvec, &seed_flat, seeds.ptr[i].len);
     }
@@ -192,13 +195,15 @@ static inline void seedvec_log_debug(struct seedvec seeds) {
 #endif
 }
 
-static ERRFN get_min_seed(i64 *min, struct seedvec *seeds) {
-    ssize_t len = seeds->len;
-    struct seed *buf = seeds->ptr;
+static ERRFN get_min_seed(i64 *const min, struct seedvec *const seeds) {
+    assert(min);
+    assert(seeds);
+    size_t len = seeds->len;
+    struct seed *const buf = seeds->ptr;
     if (len == 0) return err_trace(ERR_INPUT);
     i64 x = buf[0].start;
-    for (ssize_t i = 1; i < len; ++i) {
-        i64 val = buf[i].start;
+    for (size_t i = 1; i < len; ++i) {
+        i64 const val = buf[i].start;
         if (x > val) {
             x = val;
         }
@@ -208,6 +213,7 @@ static ERRFN get_min_seed(i64 *min, struct seedvec *seeds) {
 }
 
 int main(int argc, char *argv[]) {
+    static size_t const expected_maps = 7;
     struct fileiter f;
     struct seedvec seeds = {0};
     struct rangevec ranges = {0};
@@ -220,7 +226,7 @@ int main(int argc, char *argv[]) {
 
     seedvec_log_debug(seeds);
 
-    ssize_t map_i = 0;
+    size_t map_i = 0;
     for (; e != ERR_NONE; ++map_i) {
         vec_clear(rangevec, &ranges);
         e = parse_ranges(&ranges, &f);
@@ -234,7 +240,7 @@ int main(int argc, char *argv[]) {
 
     // Make sure we've used all maps
     if (map_i != expected_maps) {
-        log_err("Expected %zd maps, got %zd", expected_maps, map_i);
+        log_err("Expected %zu maps, got %zu", expected_maps, map_i);
         return ERR_INPUT;
     }
 
@@ -248,5 +254,5 @@ error:
     vec_deinit(rangevec, &ranges);
     vec_deinit(seedvec, &seeds);
     fileiter_deinit(&f);
-    return e;
+    return (int)e;
 }

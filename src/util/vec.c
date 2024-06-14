@@ -7,24 +7,26 @@
 
 vec_define_struct(vec__anyvec, void);
 
-void vec__deinit(struct vec__anyvec *vec, size_t elem_size) {
+void vec__deinit(struct vec__anyvec *const vec, size_t const elem_size) {
+    assert(vec);
     (void)elem_size;
     if (vec->ptr) free(vec->ptr);
 }
 
-ERRFN vec__reserve(struct vec__anyvec *vec, size_t elem_size, ssize_t additional) {
-    ssize_t const min_cap = 8;
+ERRFN vec__reserve(struct vec__anyvec *const vec, size_t const elem_size, size_t const additional) {
+    assert(vec);
+    if (additional == 0) return OK;
 
-    assert(additional > 0);
-    ssize_t total = vec->len + additional;
+    size_t const min_cap = 8;
+    size_t const total = vec->len + additional;
 
     if (total > vec->cap) {
-        ssize_t new_cap = (vec->cap >= min_cap) ? vec->cap * 2 : min_cap;
+        size_t new_cap = (vec->cap >= min_cap) ? vec->cap * 2 : min_cap;
         while (total > new_cap) {
             new_cap *= 2;
         }
 
-        char *new_buf = realloc(vec->ptr, new_cap * elem_size);
+        char *const new_buf = realloc(vec->ptr, new_cap * elem_size);
         if (!new_buf) return err_trace(ERR_MEM);
 
         vec->ptr = new_buf;

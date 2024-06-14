@@ -10,11 +10,11 @@
 /// Fat pointer string view
 struct str {
     char *ptr;
-    ssize_t len;
+    size_t len;
 };
 
 /// Get substring from start to end (exclusive)
-NODISCARD struct str str_substr(struct str s, ssize_t start, ssize_t end);
+NODISCARD struct str str_substr(struct str s, size_t start, size_t end);
 /// Split a str by delim. Return next split section.
 struct str str_split(struct str *tail, struct str input, char const *delim);
 /// Split a str by any char in delims. Returns matched char, or '\0' if end of string
@@ -34,16 +34,15 @@ void str_println(struct str s);
 struct strbuf {
     char *ptr;
     /// Length of string, excluding null byte
-    ssize_t len;
+    size_t len;
     /// Capacity of pointer memory
-    ssize_t cap;
+    size_t cap;
 };
 
 inline void strbuf_assert_valid(struct strbuf *s) {
     assert(s);
     if (s->cap > 0) {
         assert(s->ptr != NULL);
-        assert(s->len >= 0);
         assert(s->len < s->cap);
     } else {
         assert(s->ptr == NULL);
@@ -60,7 +59,7 @@ ERRFN strbuf_init_copy_cstr(struct strbuf *s, char const *ptr);
 /// Create a cstrbuf by copying a str
 ERRFN strbuf_init_copy_str(struct strbuf *s, struct str other);
 /// Reserve additional bytes beyond length
-ERRFN strbuf_reserve(struct strbuf *s, ssize_t additional);
+ERRFN strbuf_reserve(struct strbuf *s, size_t additional);
 /// Append a character to the end of the buffer and move the null terminator
 ERRFN strbuf_push(struct strbuf *s, char ch);
 /// Get a str view

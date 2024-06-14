@@ -13,10 +13,11 @@ static bool is_symbol(char const c) {
     }
 }
 
-static i64 get_number(struct strbuf *line, ssize_t const col) {
-    if (col < 0 || col >= line->len || !isdigit(line->ptr[col])) return 0;
+static i64 get_number(struct strbuf *const line, size_t const col) {
+    assert(line);
+    if (col >= line->len || !isdigit(line->ptr[col])) return 0;
 
-    ssize_t left = col;
+    size_t left = col;
     while (left > 0 && isdigit(line->ptr[left - 1])) --left;
 
     char *start = &line->ptr[left];
@@ -34,21 +35,28 @@ static i64 get_number(struct strbuf *line, ssize_t const col) {
     return n;
 }
 
-static ERRFN push_number(struct intvec *nums, struct strbuf *line, ssize_t col) {
-    i64 n = get_number(line, col);
+static ERRFN push_number(struct intvec *const nums, struct strbuf *const line, size_t const col) {
+    assert(nums);
+    assert(line);
+    i64 const n = get_number(line, col);
     if (n) return vec_push(intvec, nums, n);
     return OK;
 }
 
-static ERRFN push_row_adjacent_numbers(struct intvec *nums, struct strbuf *line, ssize_t col) {
+static ERRFN
+push_row_adjacent_numbers(struct intvec *const nums, struct strbuf *const line, size_t const col) {
+    assert(nums);
+    assert(line);
     enum err e = OK;
     // If a number exists in the center, then there can be only one number
     i64 n = get_number(line, col);
     if (n) return vec_push(intvec, nums, n);
 
-    n = get_number(line, col - 1);
-    if (n) e = vec_push(intvec, nums, n);
-    if (e) return e;
+    if (col > 0) {
+        n = get_number(line, col - 1);
+        if (n) e = vec_push(intvec, nums, n);
+        if (e) return e;
+    }
 
     n = get_number(line, col + 1);
     if (n) e = vec_push(intvec, nums, n);
@@ -56,11 +64,13 @@ static ERRFN push_row_adjacent_numbers(struct intvec *nums, struct strbuf *line,
 }
 
 static ERRFN get_adjacent_numbers(
-    struct intvec *nums,
-    struct linevec *lines,
-    ssize_t const row,
-    ssize_t const col
+    struct intvec *const nums,
+    struct linevec *const lines,
+    size_t const row,
+    size_t const col
 ) {
+    assert(nums);
+    assert(lines);
     enum err e = OK;
     // Top
     if (row > 0) {
@@ -68,13 +78,15 @@ static ERRFN get_adjacent_numbers(
         if (e) return e;
     }
     // Left
-    e = push_number(nums, &lines->ptr[row], col - 1);
-    if (e) return e;
+    if (col > 0) {
+        e = push_number(nums, &lines->ptr[row], col - 1);
+        if (e) return e;
+    }
     // Right
     e = push_number(nums, &lines->ptr[row], col + 1);
     if (e) return e;
     // Bottom
-    if (row < lines->len - 1) {
+    if (lines->len > 0 && row < lines->len - 1) {
         e = push_row_adjacent_numbers(nums, &lines->ptr[row + 1], col);
         if (e) return e;
     }
@@ -91,9 +103,9 @@ int main(int argc, char *argv[]) {
 
     i64 total = 0;
 
-    for (ssize_t row = 0; row < lines.len; ++row) {
-        struct strbuf line = lines.ptr[row];
-        for (ssize_t col = 0; col < line.len; ++col) {
+    for (size_t row = 0; row < lines.len; ++row) {
+        struct strbuf const line = lines.ptr[row];
+        for (size_t col = 0; col < line.len; ++col) {
             char const value = line.ptr[col];
             if (is_symbol(value)) {
                 vec_clear(intvec, &nums);
@@ -115,5 +127,5 @@ int main(int argc, char *argv[]) {
 error:
     vec_deinit(intvec, &nums);
     linevec_deinit(&lines);
-    return e;
+    return (int)e;
 }

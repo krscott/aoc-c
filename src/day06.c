@@ -10,7 +10,7 @@ struct race {
 };
 vec_define_struct(racevec, struct race);
 
-static ERRFN parse_races(struct racevec *races, struct str times, struct str distances) {
+static ERRFN parse_races(struct racevec *const races, struct str times, struct str distances) {
     assert(races);
     *races = (struct racevec){0};
 
@@ -29,7 +29,7 @@ static ERRFN parse_races(struct racevec *races, struct str times, struct str dis
     return OK;
 }
 
-static i64 race_get_wins(struct race race) {
+static i64 race_get_wins(struct race const race) {
     i64 test_time = race.time / 2;
     i64 test_distance;
     i64 wins = 0;
@@ -73,7 +73,7 @@ int main(int argc, char *argv[]) {
 
     i64 wins = 1;
 
-    for (ssize_t i = 0; i < races.len; ++i) {
+    for (size_t i = 0; i < races.len; ++i) {
         wins *= race_get_wins(races.ptr[i]);
     }
 
@@ -82,5 +82,5 @@ int main(int argc, char *argv[]) {
 error:
     vec_deinit(racevec, &races);
     linevec_deinit(&lines);
-    return e;
+    return (int)e;
 }
