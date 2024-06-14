@@ -51,7 +51,7 @@ endfunction()
 
 file(GLOB days src/day*.c) 
 file(GLOB utils src/util/*.c)
-list(FILTER utils EXCLUDE REGEX "/test_[^.]*\.c")
+list(FILTER utils EXCLUDE REGEX "_test\.c")
 foreach(day ${days})
     add_day(${day} a "${utils}")
     add_day(${day} b "${utils}")
@@ -61,7 +61,7 @@ endforeach()
 
 include(CTest)
 
-file(GLOB util_tests src/util/test_*.c)
+file(GLOB util_tests src/util/*_test.c)
 foreach(util_test ${util_tests})
     get_filename_component(target ${util_test} NAME_WE)
     add_executable(${target} ${util_test} ${utils})
