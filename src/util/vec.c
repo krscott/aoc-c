@@ -36,3 +36,12 @@ ERRFN vec__reserve(struct vec__anyvec *const vec, size_t const elem_size, size_t
 
     return OK;
 }
+
+void vec__sort(
+    struct vec__anyvec *const vec,
+    size_t const elem_size,
+    int (*compar)(void const *, void const *)
+) {
+    assert(vec);
+    qsort(vec->ptr, vec->len, elem_size, compar);
+}

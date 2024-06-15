@@ -18,5 +18,5 @@ int main(int argc, char *argv[]) {
 
 error:
     fileiter_deinit(&f);
-    return e;
+    return (int)e;
 }

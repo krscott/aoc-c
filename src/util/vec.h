@@ -47,4 +47,11 @@ ERRFN vec__reserve(struct vec__anyvec *vec, size_t elem_size, size_t additional)
         .len = (v)->len,                                    \
     })
 
+#define vec_sort(name, v, compar) vec__sort(vec__destructure(name, (v)), (compar))
+void vec__sort(
+    struct vec__anyvec *const vec,
+    size_t const elem_size,
+    int (*compar)(void const *, void const *)
+);
+
 #endif  // VEC_H
