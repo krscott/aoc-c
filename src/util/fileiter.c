@@ -82,24 +82,51 @@ ERRFN fileiter_init_cli(struct fileiter *const iter, int const argc, char **cons
 }
 
 ERRFN fileiter_line(struct str *const s, struct fileiter *const iter) {
-    assert(s);
     assert(iter);
+    errno = 0;
     ssize_t const line_length = getline(&iter->buffer, &iter->size, iter->file);
     if (errno) {
         log_err("getline failed: %s", strerror(errno));
-        *s = (struct str){0};
+        if (s) *s = (struct str){0};
         return ERR_ERRNO;
     } else if (line_length < 0) {
-        *s = (struct str){0};
+        if (s) *s = (struct str){0};
         return ERR_NONE;
     } else {
-        *s = str_trim_whitespace((struct str){
+        struct str const line = str_trim_whitespace((struct str){
             .ptr = iter->buffer,
             .len = (size_t)line_length,
         });
-        str_log_dbg(*s);
+        str_log_dbg(line);
+        if (s) *s = line;
         return OK;
     }
+}
+
+ERRFN fileiter_line_strbuf_init(struct strbuf *const sb, struct fileiter *const iter) {
+    assert(sb);
+    assert(iter);
+    struct str line;
+    enum err e = fileiter_line(&line, iter);
+    if (e) return e;
+    return strbuf_init_copy_str(sb, line);
+}
+
+ERRFN fileiter_skip_blank_line(struct fileiter *iter) {
+    assert(iter);
+    struct str line;
+    enum err const e = fileiter_line(&line, iter);
+    if (e == ERR_NONE) {
+        log_err("Expected blank line, reached end of stream");
+        return ERR_INPUT;
+    }
+    if (e) return e;
+
+    if (line.len != 0) {
+        log_err("Expected newline, got: %.*s", (int)line.len, line.ptr);
+    }
+
+    return OK;
 }
 
 void fileiter_deinit(struct fileiter *const iter) {

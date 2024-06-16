@@ -3,6 +3,7 @@
 #include <assert.h>
 #include <stdlib.h>
 
+#include "common.h"
 #include "error.h"
 
 vec_define_struct(vec__anyvec, void);
@@ -40,8 +41,20 @@ ERRFN vec__reserve(struct vec__anyvec *const vec, size_t const elem_size, size_t
 void vec__sort(
     struct vec__anyvec *const vec,
     size_t const elem_size,
-    int (*compar)(void const *, void const *)
+    int (*compare_fn)(void const *, void const *)
 ) {
     assert(vec);
-    qsort(vec->ptr, vec->len, elem_size, compar);
+    qsort(vec->ptr, vec->len, elem_size, compare_fn);
+}
+
+NODISCARD enum err vec__bsearch(
+    void **match_ptr,
+    struct vec__anyvec *const vec,
+    size_t const elem_size,
+    void const *key,
+    int (*compare_fn)(void const *, void const *)
+) {
+    assert(vec);
+    *match_ptr = bsearch(key, vec->ptr, vec->len, elem_size, compare_fn);
+    return *match_ptr ? OK : ERR_NONE;
 }

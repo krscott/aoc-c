@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <sys/types.h>
 
+#include "common.h"
 #include "error.h"
 
 /// Generic type-less vector
@@ -47,11 +48,21 @@ ERRFN vec__reserve(struct vec__anyvec *vec, size_t elem_size, size_t additional)
         .len = (v)->len,                                    \
     })
 
-#define vec_sort(name, v, compar) vec__sort(vec__destructure(name, (v)), (compar))
+#define vec_sort(name, v, compare_fn) vec__sort(vec__destructure(name, (v)), (compare_fn))
 void vec__sort(
     struct vec__anyvec *const vec,
     size_t const elem_size,
-    int (*compar)(void const *, void const *)
+    int (*compare_fn)(void const *, void const *)
+);
+
+#define vec_bsearch(name, match_ptr, v, key, compare_fn) \
+    vec__bsearch((void **)(match_ptr), vec__destructure(name, (v)), (key), (compare_fn))
+NODISCARD enum err vec__bsearch(
+    void **match_ptr,
+    struct vec__anyvec *const vec,
+    size_t const elem_size,
+    void const *key,
+    int (*compare_fn)(void const *, void const *)
 );
 
 #endif  // VEC_H

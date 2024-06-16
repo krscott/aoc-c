@@ -8,6 +8,7 @@
 #define NODISCARD __attribute__((warn_unused_result))
 
 typedef int64_t i64;
+typedef uint32_t u32;
 
 NODISCARD i64 max_i32(i64 a, i64 b);
 
