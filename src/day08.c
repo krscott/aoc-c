@@ -1,3 +1,5 @@
+#include <stdbool.h>
+
 #include "util/error.h"
 #include "util/fileiter.h"
 #include "util/log.h"
@@ -16,12 +18,24 @@ struct node {
     int right;
 };
 vec_define_struct(nodevec, struct node);
+vec_define_struct(pnodevec, struct node *);
 
 static int node_compare(void const *const a, void const *const b) {
     return *(int const *)a - *(int const *)b;
 }
 
+static bool node_is_goal(struct node node) {
+    if (PART1) {
+        int const goal1 = ((int)'Z' << 16) | ((int)'Z' << 8) | ((int)'Z');
+        return node.key == goal1;
+    } else {
+        return (node.key & 0xff) == (int)'Z';
+    }
+}
+
+#if LOG_DBG
 static void node_log_dbg(struct node const node) {
+    (void)node;
     log_dbg(
         "%c%c%c = (%c%c%c, %c%c%c)",
         (char)(node.key >> 16),
@@ -35,6 +49,9 @@ static void node_log_dbg(struct node const node) {
         (char)node.right
     );
 }
+#else
+#define node_log_dbg(node)
+#endif
 
 static int parse_key(char const *const s) {
     return (((int)(s[0])) << 16) | (((int)(s[1])) << 8) | ((int)(s[2]));
@@ -57,19 +74,39 @@ static ERRFN parse_node(struct node *const node, struct str const line) {
     return OK;
 }
 
+static ERRFN find_node(struct node **const node, struct nodevec *const nodes, int const key) {
+    assert(node);
+    assert(nodes);
+    enum err e = OK;
+
+    e = vec_bsearch(nodevec, node, nodes, &key, node_compare);
+    if (e) {
+        log_err("Could not find key %c%c%c", (char)(key >> 16), (char)(key >> 8), (char)key);
+        return e;
+    }
+    node_log_dbg(**node);
+
+    return OK;
+}
+
 int main(int argc, char *argv[]) {
     struct fileiter f;
+    struct strbuf instructions;
+    struct nodevec nodes = {0};
+    struct pnodevec positions = {0};
+
     enum err e = fileiter_init_cli(&f, argc, argv);
     if (e) goto error;
 
-    struct strbuf instructions;
+    // Parse instructions
+
     e = fileiter_line_strbuf_init(&instructions, &f);
     if (e) goto error;
 
     e = fileiter_skip_blank_line(&f);
     if (e) goto error;
 
-    struct nodevec nodes = {0};
+    // Parse nodes
 
     for (;;) {
         struct str line;
@@ -85,38 +122,58 @@ int main(int argc, char *argv[]) {
         if (e) goto error;
     }
 
+    // Sort nodes
+
     vec_sort(nodevec, &nodes, node_compare);
 
-    int curr_key = parse_key("AAA");
-    int goal_key = parse_key("ZZZ");
+    // Get initial positions
+
+    if (PART1) {
+        struct node *node = NULL;
+        e = find_node(&node, &nodes, parse_key("AAA"));
+        if (e) goto error;
+        e = vec_push(pnodevec, &positions, node);
+        if (e) goto error;
+    } else {
+        for (size_t i = 0; i < nodes.len; ++i) {
+            if ((nodes.ptr[i].key & 0xff) == (int)'A') {
+                e = vec_push(pnodevec, &positions, &nodes.ptr[i]);
+                if (e) goto error;
+                node_log_dbg(nodes.ptr[i]);
+            }
+        }
+    }
+
+    // Step through instructions
+
     size_t steps = 0;
     for (; steps < STEPS_LIMIT; ++steps) {
-        struct node *node = NULL;
-        e = vec_bsearch(nodevec, &node, &nodes, &curr_key, node_compare);
-        if (e) {
-            log_err("Could not find key");
-            goto error;
-        }
-        node_log_dbg(*node);
-        if (node->key == goal_key) break;
         char inst = instructions.ptr[steps % instructions.len];
         log_dbg("Instruction: %c", inst);
-        int next_key = inst == 'L' ? node->left : node->right;
-        if (next_key == curr_key) {
-            log_err("Infinite loop");
-            e = ERR_NONE;
-            goto error;
+
+        bool all_goal = true;
+
+        for (size_t i = 0; i < positions.len; ++i) {
+            struct node *const node = positions.ptr[i];
+            int next_key = inst == 'L' ? node->left : node->right;
+            e = find_node(&positions.ptr[i], &nodes, next_key);
+            if (e) goto error;
+
+            if (!node_is_goal(*node)) all_goal = false;
         }
-        curr_key = next_key;
+
+        if (all_goal) break;
     }
     if (steps == STEPS_LIMIT) {
         log_err("Could not find goal");
         e = ERR_NONE;
         goto error;
     }
+
     printf("%zu\n", steps);
 
 error:
+    vec_deinit(pnodevec, &positions);
     vec_deinit(nodevec, &nodes);
     strbuf_deinit(&instructions);
     fileiter_deinit(&f);

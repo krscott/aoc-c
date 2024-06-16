@@ -3,7 +3,6 @@
 #include <assert.h>
 #include <stdlib.h>
 
-#include "common.h"
 #include "error.h"
 
 vec_define_struct(vec__anyvec, void);
@@ -47,7 +46,7 @@ void vec__sort(
     qsort(vec->ptr, vec->len, elem_size, compare_fn);
 }
 
-NODISCARD enum err vec__bsearch(
+ERRFN vec__bsearch(
     void **match_ptr,
     struct vec__anyvec *const vec,
     size_t const elem_size,

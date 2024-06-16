@@ -129,5 +129,7 @@ do_test(day07a 07.txt 248422077)
 do_test(day07b 07-example.txt 5905)
 do_test(day07b 07.txt 249817836)
 
-do_test(day08a 08-example.txt 2)
+do_test(day08a 08a-example.txt 2)
 do_test(day08a 08.txt 15989)
+do_test(day08b 08b-example.txt 6)
+# do_test(day08b 08.txt 249817836)

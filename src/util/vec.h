@@ -4,7 +4,6 @@
 #include <stdlib.h>
 #include <sys/types.h>
 
-#include "common.h"
 #include "error.h"
 
 /// Generic type-less vector
@@ -29,7 +28,8 @@ struct vec__anyvec;
 #define vec__assert_type(S, v) ((S *)(struct { S *inner; }){.inner = (v)}.inner)
 
 #define vec__destructure(name, v) \
-    (struct vec__anyvec *)(v), sizeof(*vec__assert_type(struct name, (v))->ptr)
+    (struct vec__anyvec *)(v),    \
+        sizeof(*vec__assert_type(struct name, (v))->ptr) /* NOLINT(bugprone-sizeof-expression) */
 
 #define vec_deinit(name, v) vec__deinit(vec__destructure(name, (v)))
 void vec__deinit(struct vec__anyvec *vec, size_t elem_size);
@@ -57,7 +57,7 @@ void vec__sort(
 
 #define vec_bsearch(name, match_ptr, v, key, compare_fn) \
     vec__bsearch((void **)(match_ptr), vec__destructure(name, (v)), (key), (compare_fn))
-NODISCARD enum err vec__bsearch(
+ERRFN vec__bsearch(
     void **match_ptr,
     struct vec__anyvec *const vec,
     size_t const elem_size,
