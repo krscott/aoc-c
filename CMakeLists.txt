@@ -131,5 +131,5 @@ do_test(day07b 07.txt 249817836)
 
 do_test(day08a 08a-example.txt 2)
 do_test(day08a 08.txt 15989)
-do_test(day08b 08b-example.txt 6)
-# do_test(day08b 08.txt 249817836)
+do_test(day08b 08b-example.txt "lcd\\(2, 3\\)")
+do_test(day08b 08.txt "lcd\\(15989, 14363, 12737, 18157, 19241, 19783\\)")

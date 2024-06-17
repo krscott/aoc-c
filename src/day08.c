@@ -1,7 +1,9 @@
 #include <stdbool.h>
 
+#include "util/common.h"
 #include "util/error.h"
 #include "util/fileiter.h"
+#include "util/intvec.h"
 #include "util/log.h"
 #include "util/str.h"
 #include "util/vec.h"
@@ -18,7 +20,6 @@ struct node {
     int right;
 };
 vec_define_struct(nodevec, struct node);
-vec_define_struct(pnodevec, struct node *);
 
 static int node_compare(void const *const a, void const *const b) {
     return *(int const *)a - *(int const *)b;
@@ -89,11 +90,38 @@ static ERRFN find_node(struct node **const node, struct nodevec *const nodes, in
     return OK;
 }
 
+static ERRFN get_steps_to_goal(
+    i64 *const steps,
+    struct nodevec *const nodes,
+    struct str const instructions,
+    int key
+) {
+    assert(nodes);
+
+    enum err e = OK;
+    struct node *node;
+    for (size_t step = 0; step < STEPS_LIMIT; ++step) {
+        e = find_node(&node, nodes, key);
+        if (e) return e;
+        if (node_is_goal(*node)) {
+            *steps = (i64)step;
+            return OK;
+        }
+
+        char inst = instructions.ptr[step % instructions.len];
+        log_dbg("Instruction: %c", inst);
+
+        key = inst == 'L' ? node->left : node->right;
+    }
+    log_err("Could not find goal");
+    return ERR_INPUT;
+}
+
 int main(int argc, char *argv[]) {
     struct fileiter f;
     struct strbuf instructions;
     struct nodevec nodes = {0};
-    struct pnodevec positions = {0};
+    struct intvec cycle_lengths = {0};
 
     enum err e = fileiter_init_cli(&f, argc, argv);
     if (e) goto error;
@@ -129,51 +157,37 @@ int main(int argc, char *argv[]) {
     // Get initial positions
 
     if (PART1) {
-        struct node *node = NULL;
-        e = find_node(&node, &nodes, parse_key("AAA"));
+        i64 steps;
+        e = get_steps_to_goal(&steps, &nodes, strbuf_to_str(instructions), parse_key("AAA"));
         if (e) goto error;
-        e = vec_push(pnodevec, &positions, node);
-        if (e) goto error;
+        printf("%ld\n", steps);
     } else {
         for (size_t i = 0; i < nodes.len; ++i) {
-            if ((nodes.ptr[i].key & 0xff) == (int)'A') {
-                e = vec_push(pnodevec, &positions, &nodes.ptr[i]);
+            int const key = nodes.ptr[i].key;
+            if ((key & 0xff) == (int)'A') {
+                i64 steps;
+                e = get_steps_to_goal(&steps, &nodes, strbuf_to_str(instructions), key);
                 if (e) goto error;
-                node_log_dbg(nodes.ptr[i]);
+                e = vec_push(intvec, &cycle_lengths, steps);
+                if (e) goto error;
             }
         }
+
+        // This outputs answer of "lcd(...)" that can be copy-pasted into
+        // WolframAlpha to get final answer.
+        // TODO: Add actual prime-factorization implementation of LCD
+        printf("lcd(");
+        for (size_t i = 0; i < cycle_lengths.len; ++i) {
+            if (i != 0) printf(", ");
+            printf("%ld", cycle_lengths.ptr[i]);
+        }
+        printf(")\n");
     }
 
     // Step through instructions
 
-    size_t steps = 0;
-    for (; steps < STEPS_LIMIT; ++steps) {
-        char inst = instructions.ptr[steps % instructions.len];
-        log_dbg("Instruction: %c", inst);
-
-        bool all_goal = true;
-
-        for (size_t i = 0; i < positions.len; ++i) {
-            struct node *const node = positions.ptr[i];
-            int next_key = inst == 'L' ? node->left : node->right;
-            e = find_node(&positions.ptr[i], &nodes, next_key);
-            if (e) goto error;
-
-            if (!node_is_goal(*node)) all_goal = false;
-        }
-
-        if (all_goal) break;
-    }
-    if (steps == STEPS_LIMIT) {
-        log_err("Could not find goal");
-        e = ERR_NONE;
-        goto error;
-    }
-
-    printf("%zu\n", steps);
-
 error:
-    vec_deinit(pnodevec, &positions);
+    vec_deinit(intvec, &cycle_lengths);
     vec_deinit(nodevec, &nodes);
     strbuf_deinit(&instructions);
     fileiter_deinit(&f);
