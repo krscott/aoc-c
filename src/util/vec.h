@@ -27,6 +27,10 @@ struct vec__anyvec;
 // (i.e. Try removing the cast and attempt to refactor-rename the struct)
 #define vec__assert_type(S, v) ((S *)(struct { S *inner; }){.inner = (v)}.inner)
 
+#define span_args(name, v)    \
+    (void *)(v).ptr, (v).len, \
+        sizeof(*vec__assert_type(struct name, &(v))->ptr) /* NOLINT(bugprone-sizeof-expression) */
+
 #define vec__destructure(name, v) \
     (struct vec__anyvec *)(v),    \
         sizeof(*vec__assert_type(struct name, (v))->ptr) /* NOLINT(bugprone-sizeof-expression) */
@@ -48,12 +52,7 @@ ERRFN vec__reserve(struct vec__anyvec *vec, size_t elem_size, size_t additional)
         .len = (v)->len,                                    \
     })
 
-#define vec_sort(name, v, compare_fn) vec__sort(vec__destructure(name, (v)), (compare_fn))
-void vec__sort(
-    struct vec__anyvec *const vec,
-    size_t const elem_size,
-    int (*compare_fn)(void const *, void const *)
-);
+#define vec_sort(name, v, compare_fn) qsort(span_args(name, (v)), (compare_fn))
 
 #define vec_bsearch(name, match_ptr, v, key, compare_fn) \
     vec__bsearch((void **)(match_ptr), vec__destructure(name, (v)), (key), (compare_fn))

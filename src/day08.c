@@ -152,7 +152,7 @@ int main(int argc, char *argv[]) {
 
     // Sort nodes
 
-    vec_sort(nodevec, &nodes, node_compare);
+    vec_sort(nodevec, nodes, node_compare);
 
     // Get initial positions
 

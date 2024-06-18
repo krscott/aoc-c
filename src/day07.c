@@ -219,7 +219,7 @@ int main(int argc, char* argv[]) {
         if (e) goto error;
     }
 
-    vec_sort(handvec, &hands, hand_cmp);
+    vec_sort(handvec, hands, hand_cmp);
 
     i64 total = 0;
     for (size_t i = 0; i < hands.len; ++i) {

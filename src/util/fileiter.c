@@ -11,7 +11,7 @@
 #include "str.h"
 #include "vec.h"
 
-void linevec_deinit(struct linevec *lines) {
+void linevec_deinit(struct linevec *const lines) {
     for (size_t i = 0; i < lines->len; ++i) {
         strbuf_deinit(&lines->ptr[i]);
     }
