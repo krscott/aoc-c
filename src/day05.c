@@ -183,10 +183,13 @@ static ERRFN transform_seeds(struct seedvec *const seeds, struct rangespan const
 
 static inline void seedvec_log_debug(struct seedvec const seeds) {
 #if LOG_DBG
+    enum err e = OK;
     struct intvec seed_flat = {0};
     for (size_t i = 0; i < seeds.len; ++i) {
-        (void)vec_push(intvec, &seed_flat, seeds.ptr[i].start);
-        (void)vec_push(intvec, &seed_flat, seeds.ptr[i].len);
+        e = vec_push(intvec, &seed_flat, seeds.ptr[i].start);
+        if (e) IGNORE(err_trace(e));
+        e = vec_push(intvec, &seed_flat, seeds.ptr[i].len);
+        if (e) IGNORE(err_trace(e));
     }
     intvec_log_dbg(seed_flat);
     vec_deinit(intvec, &seed_flat);
@@ -226,29 +229,35 @@ int main(int argc, char *argv[]) {
 
     seedvec_log_debug(seeds);
 
-    size_t map_i = 0;
-    for (; e != ERR_NONE; ++map_i) {
-        vec_clear(rangevec, &ranges);
-        e = parse_ranges(&ranges, &f);
-        if (e > ERR_NONE) goto error;
+    // Transform seeds
+    {
+        size_t map_i = 0;
+        for (; e != ERR_NONE; ++map_i) {
+            vec_clear(rangevec, &ranges);
+            e = parse_ranges(&ranges, &f);
+            if (e > ERR_NONE) goto error;
 
-        enum err e2 = transform_seeds(&seeds, vec_to_span(rangevec, rangespan, &ranges));
-        if (e2) goto error;
+            enum err e2 = transform_seeds(&seeds, vec_to_span(rangevec, rangespan, &ranges));
+            if (e2) goto error;
 
-        seedvec_log_debug(seeds);
+            seedvec_log_debug(seeds);
+        }
+
+        // Make sure we've used all maps
+        if (map_i != expected_maps) {
+            log_err("Expected %zu maps, got %zu", expected_maps, map_i);
+            return ERR_INPUT;
+        }
     }
 
-    // Make sure we've used all maps
-    if (map_i != expected_maps) {
-        log_err("Expected %zu maps, got %zu", expected_maps, map_i);
-        return ERR_INPUT;
+    // Find min seed answer
+    {
+        i64 min = 0;
+        e = get_min_seed(&min, &seeds);
+        if (e) goto error;
+
+        printf("%ld\n", min);
     }
-
-    i64 min;
-    e = get_min_seed(&min, &seeds);
-    if (e) goto error;
-
-    printf("%ld\n", min);
 
 error:
     vec_deinit(rangevec, &ranges);

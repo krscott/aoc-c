@@ -200,11 +200,11 @@ static ERRFN parse_hand(struct hand* const hand, struct str const line) {
 }
 
 int main(int argc, char* argv[]) {
+    struct handvec hands = {0};
     struct fileiter f;
     enum err e = fileiter_init_cli(&f, argc, argv);
     if (e) goto error;
 
-    struct handvec hands = {0};
     for (;;) {
         struct str line;
         e = fileiter_line(&line, &f);
@@ -221,11 +221,13 @@ int main(int argc, char* argv[]) {
 
     vec_sort(handvec, hands, hand_cmp);
 
-    i64 total = 0;
-    for (size_t i = 0; i < hands.len; ++i) {
-        total += hands.ptr[i].bid * ((i64)i + 1);
+    {
+        i64 total = 0;
+        for (size_t i = 0; i < hands.len; ++i) {
+            total += hands.ptr[i].bid * ((i64)i + 1);
+        }
+        printf("%ld\n", total);
     }
-    printf("%ld\n", total);
 
 error:
     vec_deinit(handvec, &hands);

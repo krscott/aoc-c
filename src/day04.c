@@ -51,12 +51,11 @@ error:
 }
 
 int main(int argc, char *argv[]) {
+    struct intvec card_wins = {0};
+    struct intvec card_count = {0};
     struct fileiter f;
     enum err e = fileiter_init_cli(&f, argc, argv);
     if (e) goto error;
-
-    struct intvec card_wins = {0};
-    struct intvec card_count = {0};
 
     for (;;) {
         struct str line;
@@ -77,26 +76,28 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    i64 total = 0;
-    for (size_t i = 0; i < card_wins.len; ++i) {
-        size_t wins = (size_t)card_wins.ptr[i];
-        if (PART1) {
-            if (wins > 0) total += 1 << (wins - 1);
-        } else {
-            i64 count = card_count.ptr[i];
-            for (size_t j = 1; j <= wins; ++j) {
-                if (i + j >= card_count.len) {
-                    log_err("Card %zd counted past last card", i);
-                    e = ERR_INPUT;
-                    goto error;
+    {
+        i64 total = 0;
+        for (size_t i = 0; i < card_wins.len; ++i) {
+            size_t wins = (size_t)card_wins.ptr[i];
+            if (PART1) {
+                if (wins > 0) total += 1 << (wins - 1);
+            } else {
+                i64 count = card_count.ptr[i];
+                for (size_t j = 1; j <= wins; ++j) {
+                    if (i + j >= card_count.len) {
+                        log_err("Card %zd counted past last card", i);
+                        e = ERR_INPUT;
+                        goto error;
+                    }
+                    card_count.ptr[i + j] += count;
                 }
-                card_count.ptr[i + j] += count;
+                total += count;
             }
-            total += count;
         }
-    }
 
-    printf("%ld\n", total);
+        printf("%ld\n", total);
+    }
 
 error:
     vec_deinit(intvec, &card_wins);

@@ -6,6 +6,9 @@ cd "$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
 
 BUILD_DIR=out/Debug
 COMP_CMDS_FILENAME=compile_commands.json
+CC="${CC:-clang}"
+
+echo "$CC"
 
 usage() {
 	echo "Usage: $0 [COMMAND [...]]"
@@ -23,7 +26,7 @@ cd-build-dir() {
 build() {
 	(
 		cd-build-dir
-		cmake ../..
+		CC=$CC cmake ../..
 		cmake --build . -- -j
 	)
 	if ! [[ -L $COMP_CMDS_FILENAME ]] && ! [[ -e $COMP_CMDS_FILENAME ]]; then
@@ -32,37 +35,37 @@ build() {
 }
 
 case "$1" in
-	"")
-		build
-		;;
-	clean)
-		if [[ -d $BUILD_DIR ]]; then
-			rm -rf "$BUILD_DIR"
-		fi
-		if [[ -L $COMP_CMDS_FILENAME ]]; then
-			rm $COMP_CMDS_FILENAME
-		fi
-		;;
-	test)
-		build
-		(
-			cd-build-dir
-			ctest -T memcheck -j
-		)
-		;;
-	run)
-		shift
-		CMD="$1"
-		shift
-		if [[ -z $CMD ]]; then
-			usage
-			exit 1
-		fi
-		build
-		"$BUILD_DIR/$CMD" "$@"
-		;;
-	*)
+"")
+	build
+	;;
+clean)
+	if [[ -d $BUILD_DIR ]]; then
+		rm -rf "$BUILD_DIR"
+	fi
+	if [[ -L $COMP_CMDS_FILENAME ]]; then
+		rm $COMP_CMDS_FILENAME
+	fi
+	;;
+test)
+	build
+	(
+		cd-build-dir
+		ctest -T memcheck -j
+	)
+	;;
+run)
+	shift
+	CMD="$1"
+	shift
+	if [[ -z $CMD ]]; then
 		usage
 		exit 1
-		;;
+	fi
+	build
+	"$BUILD_DIR/$CMD" "$@"
+	;;
+*)
+	usage
+	exit 1
+	;;
 esac

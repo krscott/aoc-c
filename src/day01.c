@@ -91,10 +91,9 @@ static ERRFN add_line_calibration_p1(i64 *const cal, struct str const line) {
 
 int main(int argc, char *argv[]) {
     struct fileiter f;
+    i64 total = 0;
     enum err e = fileiter_init_cli(&f, argc, argv);
     if (e) goto error;
-
-    i64 total = 0;
 
     for (;;) {
         struct str line;

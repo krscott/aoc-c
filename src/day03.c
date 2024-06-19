@@ -101,28 +101,30 @@ int main(int argc, char *argv[]) {
     enum err e = cli_file_lines(&lines, argc, argv);
     if (e) goto error;
 
-    i64 total = 0;
+    {
+        i64 total = 0;
 
-    for (size_t row = 0; row < lines.len; ++row) {
-        struct strbuf const line = lines.ptr[row];
-        for (size_t col = 0; col < line.len; ++col) {
-            char const value = line.ptr[col];
-            if (is_symbol(value)) {
-                vec_clear(intvec, &nums);
-                e = get_adjacent_numbers(&nums, &lines, row, col);
-                if (e) goto error;
-                if (PART1) {
-                    total += intvec_sum(&nums);
-                } else {
-                    if (nums.len == 2) {
-                        total += intvec_product(&nums);
+        for (size_t row = 0; row < lines.len; ++row) {
+            struct strbuf const line = lines.ptr[row];
+            for (size_t col = 0; col < line.len; ++col) {
+                char const value = line.ptr[col];
+                if (is_symbol(value)) {
+                    vec_clear(intvec, &nums);
+                    e = get_adjacent_numbers(&nums, &lines, row, col);
+                    if (e) goto error;
+                    if (PART1) {
+                        total += intvec_sum(&nums);
+                    } else {
+                        if (nums.len == 2) {
+                            total += intvec_product(&nums);
+                        }
                     }
                 }
             }
         }
-    }
 
-    printf("%ld\n", total);
+        printf("%ld\n", total);
+    }
 
 error:
     vec_deinit(intvec, &nums);

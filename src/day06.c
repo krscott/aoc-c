@@ -71,13 +71,15 @@ int main(int argc, char *argv[]) {
     e = parse_races(&races, strbuf_to_str(lines.ptr[0]), strbuf_to_str(lines.ptr[1]));
     if (e) goto error;
 
-    i64 wins = 1;
+    {
+        i64 wins = 1;
 
-    for (size_t i = 0; i < races.len; ++i) {
-        wins *= race_get_wins(races.ptr[i]);
+        for (size_t i = 0; i < races.len; ++i) {
+            wins *= race_get_wins(races.ptr[i]);
+        }
+
+        printf("%ld\n", wins);
     }
-
-    printf("%ld\n", wins);
 
 error:
     vec_deinit(racevec, &races);

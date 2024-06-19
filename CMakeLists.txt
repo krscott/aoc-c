@@ -36,6 +36,15 @@ add_compile_options(
     -Wconversion
 )
 
+if (CMAKE_C_COMPILER_ID STREQUAL "GNU")
+    add_compile_options(
+        -Wjump-misses-init
+    )
+elseif (CMAKE_C_COMPILER_ID STREQUAL "Clang")
+    # add_compile_options(
+    # )
+endif()
+
 function(define_file_name_macro target)
     get_target_property(sources ${target} SOURCES)
     foreach(source ${sources})
