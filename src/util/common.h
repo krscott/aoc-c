@@ -1,7 +1,9 @@
 #ifndef UTIL_H
 #define UTIL_H
 
+#include <assert.h>  // IWYU pragma: export
 #include <stdint.h>
+#include <stdlib.h>  // IWYU pragma: export
 
 // Defaults for cmake-defined variables
 #ifndef PART1
@@ -12,6 +14,8 @@
 #endif
 
 #define countof(a) (sizeof(a) / sizeof(*(a)))
+#define STR_(s) #s
+#define STR(s) STR_(s)
 
 #define NODISCARD __attribute__((warn_unused_result))
 
@@ -20,6 +24,12 @@
         if (x) {  \
         }         \
     } while (0)
+
+#define assert_type(T, v) ((struct { T inner; }){.inner = (v)}.inner)
+#define assert_defined(ident, T)                                                                  \
+    static_assert(                                                                                \
+        sizeof(assert_type(T, ident)) == sizeof(T), "Expected definition: " STR(T) " " STR(ident) \
+    )
 
 typedef int64_t i64;
 typedef uint32_t u32;
