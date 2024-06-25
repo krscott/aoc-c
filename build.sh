@@ -7,6 +7,7 @@ cd "$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
 BUILD_DIR=out/Debug
 COMP_CMDS_FILENAME=compile_commands.json
 CC="${CC:-clang}"
+THREADS=${THREADS:-$(($(nproc) - 1))}
 
 echo "$CC"
 
@@ -26,8 +27,8 @@ cd-build-dir() {
 build() {
 	(
 		cd-build-dir
-		CC=$CC cmake ../..
-		cmake --build . -- -j
+		CC=$CC cmake -G Ninja ../..
+		cmake --build . -- -j "$THREADS"
 	)
 	if ! [[ -L $COMP_CMDS_FILENAME ]] && ! [[ -e $COMP_CMDS_FILENAME ]]; then
 		ln -s "$BUILD_DIR/$COMP_CMDS_FILENAME" "$COMP_CMDS_FILENAME"

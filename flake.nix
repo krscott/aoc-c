@@ -57,6 +57,7 @@
               gnumake
               cmake
               # bear
+              ninja
 
               # debugger
               llvm.lldb
