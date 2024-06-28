@@ -42,7 +42,7 @@ void vec__deinit(struct vec__anyvec *vec, size_t elem_size);
 ERRFN vec__reserve(struct vec__anyvec *vec, size_t elem_size, size_t additional);
 
 #define vec_push(name, v, elem) \
-    err_nodiscard((vec_reserve(name, (v), 1) || ((v)->ptr[(v)->len++] = elem, OK)))
+    err_nodiscard((vec_reserve(name, (v), 1) || ((v)->ptr[(v)->len++] = (elem), OK)))
 
 #define vec_clear(name, v) (vec__assert_type(struct name, (v))->len = 0)
 
